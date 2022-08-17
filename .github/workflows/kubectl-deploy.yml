@@ -1,12 +1,9 @@
-
-
 name: remote ssh command
 on:
   push:
     branches:
       - main
       - master
-
 
 env:
   JWT_SECRET: ${{secrets.JWT_SECRET}}
