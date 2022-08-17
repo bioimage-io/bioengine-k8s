@@ -32,14 +32,15 @@ jobs:
     - uses: actions/checkout@master
     # - run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> "$KUBECONFIG"
     - run: mkdir -p .kube
+    # - name: Setting up kubeconfig online
+      # if: ${{ !env.ACT }}
+      # run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
     - name: Setting up kubeconfig offline
-      if: ${{ env.ACT }}
+      # if: ${{ env.ACT }}
       run: | 
             apk add --update coreutils make
             echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> .kube/config
-    - name: Setting up kubeconfig offline
-      if: ${{ !env.ACT }}
-      run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
+
     # - run: cat .kube/config
           
     # - uses: engineerd/setup-kind@v0.5.0
