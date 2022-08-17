@@ -105,8 +105,11 @@ jobs:
     #     method: kubeconfig
     #     kubeconfig: ${{ secrets.KUBE_CONFIG }}
     #     context: default # current-context from kubeconfig is used as default
+    - name: Download Kubectl
+      # uses: azure/setup-kubectl@v3
+      run: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     - name: Install Kubectl
-      uses: azure/setup-kubectl@v2.0
+      run: sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     - name: Get contexts
       run: kubectl config get-contexts   
     # - name: "Write kube config"
