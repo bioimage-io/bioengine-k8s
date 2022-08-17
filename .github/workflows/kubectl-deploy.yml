@@ -27,14 +27,16 @@ jobs:
     container:
       # image: ubuntu:20.04
       # image: nektos/act-environments-ubuntu:18.04
-      image: ghcr.io/catthehacker/ubuntu:act-20.04
+      image: praqma/helmsman:v3.8.1-helm-v3.7.2
     steps:
     - uses: actions/checkout@master
     # - run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> "$KUBECONFIG"
     - run: mkdir -p .kube
     - name: Setting up kubeconfig offline
       if: ${{ env.ACT }}
-      run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> .kube/config
+      run: | 
+            apk add --update coreutils make
+            echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> .kube/config
     - name: Setting up kubeconfig offline
       if: ${{ !env.ACT }}
       run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
@@ -105,11 +107,11 @@ jobs:
     #     method: kubeconfig
     #     kubeconfig: ${{ secrets.KUBE_CONFIG }}
     #     context: default # current-context from kubeconfig is used as default
-    - name: Download Kubectl
-      # uses: azure/setup-kubectl@v3
-      run: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    - name: Install Kubectl
-      run: sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    # - name: Download Kubectl
+    #   # uses: azure/setup-kubectl@v3
+    #   run: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    # - name: Install Kubectl
+    #   run: sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     - name: Get contexts
       run: kubectl config get-contexts   
     # - name: "Write kube config"
@@ -120,16 +122,16 @@ jobs:
       run: kubectl get node  -o wide
     # - uses: actions/setup-node@v2
       # - uses: actions/setup-python@v2
-    - name: Install Helmsman
-      run: 'wget -c https://github.com/Praqma/helmsman/releases/download/v3.8.1/helmsman_3.8.1_linux_amd64.tar.gz -O - | tar -xz -C /usr/local/bin/'
+    # - name: Install Helmsman
+    #   run: 'wget -c https://github.com/Praqma/helmsman/releases/download/v3.8.1/helmsman_3.8.1_linux_amd64.tar.gz -O - | tar -xz -C /usr/local/bin/'
       # - run: which helmsman
       # - run: ls /usr/local/bin/
-    - name: Install Helm
-      uses: azure/setup-helm@v3
-      with:
-        version: v3.7.1
-    - name: helm-diff
-      run: helm plugin install https://github.com/databus23/helm-diff
+    # - name: Install Helm
+    #   uses: azure/setup-helm@v3
+    #   with:
+    #     version: v3.7.1
+    # - name: helm-diff
+      # run: helm plugin install https://github.com/databus23/helm-diff
       # name: "More"
     - name: test helm
       run: helm version
