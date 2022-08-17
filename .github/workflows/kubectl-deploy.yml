@@ -36,11 +36,11 @@ jobs:
     # - name: Setting up kubeconfig online
       # if: ${{ !env.ACT }}
       # run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
-    - name: Setting up kubeconfig offline
+    - name: Install deps
       # if: ${{ env.ACT }}
-      run: | 
-            apk add --update coreutils make
-            echo "$KUBE_CONFIG" | base64 --decode >> .kube/config
+      run: apk add --update coreutils make
+    - name: Setting up kubeconfig - offline
+      run: echo "$KUBE_CONFIG" | base64 --decode >> .kube/config
 
     # - run: cat .kube/config
           
