@@ -29,17 +29,17 @@ jobs:
       # image: nektos/act-environments-ubuntu:18.04
       image: ghcr.io/catthehacker/ubuntu:act-20.04
     steps:
-    - run: echo "${{ secrets.MY_2ND_ENV_VAR }}"
     - uses: actions/checkout@master
     # - run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> "$KUBECONFIG"
-
+    - run: mkdir -p .kube
     - name: Setting up kubeconfig offline
       if: ${{ env.ACT }}
-      run: |
-          mkdir -p .kube
-          echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> .kube/config
-          cat .kube/config
-
+      run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> .kube/config
+    - name: Setting up kubeconfig offline
+      if: ${{ !env.ACT }}
+      run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
+    # - run: cat .kube/config
+          
     # - uses: engineerd/setup-kind@v0.5.0
     # - name: Testing
     #   run: |
@@ -98,13 +98,13 @@ jobs:
     #   with:
     #     args: get pods
     # - run: echo "${{ secrets.KUBE_CONFIG }}"
-    - name: Setting up kubeconfig online
-      if: ${{ !env.ACT }}
-      uses: azure/k8s-set-context@v2
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.KUBE_CONFIG }}
-        context: default # current-context from kubeconfig is used as default
+    # - name: Setting up kubeconfig online
+    #   if: ${{ !env.ACT }}
+    #   uses: azure/k8s-set-context@v2
+    #   with:
+    #     method: kubeconfig
+    #     kubeconfig: ${{ secrets.KUBE_CONFIG }}
+    #     context: default # current-context from kubeconfig is used as default
     - name: Install Kubectl
       uses: azure/setup-kubectl@v2.0
     - name: Get contexts
