@@ -40,7 +40,10 @@ jobs:
       # if: ${{ env.ACT }}
       run: apk add --update coreutils make
     - name: Setting up kubeconfig - offline
-      run: echo "$KUBE_CONFIG" | base64 --decode >> .kube/config
+      env:
+        KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
+      run: 'echo "$KUBE_CONFIG" | base64 --decode >> .kube/config'
+      
 
     # - run: cat .kube/config
           
