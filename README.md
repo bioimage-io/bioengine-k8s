@@ -9,7 +9,7 @@ MacOS:
 
     brew install helmsman
 
-Important deployment values can be found in helsman/hypha.yaml
+Important deployment values can be found in helmsman/hypha.yaml
 
 Full production deployment using helmsman (includes ingress, gpu-operator, nvidia device plugin):
 

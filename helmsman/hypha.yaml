@@ -17,7 +17,6 @@ imagePullPolicy: Always
 image:
   # repository: ghcr.io/ctr26/hypha
   repository: ghcr.io/imjoy-team/hypha
-  tag: "0.15.6"
 # s3_access_key: rootuser
 # s3_secret_key: rootpass123
 triton_url: "http://tritoninferenceserver.tritoninferenceserver.svc.cluster.local:8000"
@@ -94,8 +93,8 @@ minio:
   # nameOverride: "minio"
   fullnameOverride: "minio"
   enabled: true
-  rootUser: rootuser
-  rootPassword: rootpass123
+  # rootUser: rootuser
+  # rootPassword: rootpass123
   # accessKey: ""
   # secretKey: ""
   replicas: 4
