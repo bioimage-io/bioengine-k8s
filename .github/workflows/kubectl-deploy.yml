@@ -1,0 +1,137 @@
+
+
+name: remote ssh command
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request: ~
+
+
+env:
+  JWT_SECRET: ${{secrets.JWT_SECRET}}
+  S3_ACCESS_KEY: ${{secrets.JWT_SECRET}}
+  S3_SECRET_KEY: ${{secrets.S3_SECRET_KEY}}
+  MINIO_ROOTUSER: ${{secrets.MINIO_ROOTUSER}}
+  MINIO_ROOTPASSWORD: ${{secrets.MINIO_ROOTPASSWORD}}
+  KUBECONFIG: .kube/config
+
+jobs:
+  
+  deploy:
+    name: deploy
+    # image: andrius/sshuttle
+    # runs-on: ubuntu-latest
+    runs-on: [self-hosted,denbi]
+    container:
+      # image: ubuntu:20.04
+      # image: nektos/act-environments-ubuntu:18.04
+      image: ghcr.io/catthehacker/ubuntu:act-20.04
+    steps:
+    - run: echo "${{ secrets.MY_2ND_ENV_VAR }}"
+    - uses: actions/checkout@master
+    # - run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> "$KUBECONFIG"
+
+    - name: Setting up kubeconfig offline
+      if: ${{ env.ACT }}
+      run: |
+          mkdir -p .kube
+          echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> .kube/config
+          cat .kube/config
+
+    # - uses: engineerd/setup-kind@v0.5.0
+    # - name: Testing
+    #   run: |
+    #     kubectl cluster-info
+    #     kubectl get pods -n kube-system
+    #     echo "current-context:" $(kubectl config current-context)
+    #     echo "environment-kubeconfig:" ${KUBECONFIG}
+    #   with:
+    #     path: main
+    # - name: Print Key
+      # run: echo $SSH_KEY
+    # - name: Install SSH key
+    #   uses: shimataro/ssh-key-action@v2
+    #   with:
+    #     key: ${{ secrets.SSH_KEY }}
+    # - name: "Write ssh key"
+    #   run: echo "${{secrets.SSH_KEY}}" | base64 --decode > id_rsa
+    # - name: "Write kube config"
+    #   run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode > $KUBECONFIG
+    # # - name: "Check key"
+    #   # run: cat id_rsa
+    # - name: "Key permissions"
+    #   run: chmod 600 id_rsa
+    # # Needed for running on real github actions, quick fix for now
+    # # - name: executing remote ssh commands using password
+    # #   run: sudo apt-get update && sudo apt-get -y install sshuttle iputils-ping nmap iptables curl tar ssh telnet netcat
+    # - name: test ssh proxy
+    #   run: ssh -vvv -i id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -fNL 30163:172.16.114.199:30163 ctr26@denbi-jumphost-01.bihealth.org
+    # - name: "check port"
+    #   run: nc -vz 127.0.0.1 30163
+    # - uses: azure/setup-kubectl@v3
+      # with:
+        # version: '<version>' # default is latest stable
+      # id: install
+    # - uses: actions-hub/kubectl@master
+    #   env:
+    #     KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+    #     KUBE_CONTEXT: default
+    #   with:
+    #     args: get node -o wide
+    # - name: KinD (Kubernetes in Docker) Action
+      # uses: engineerd/setup-kind@v0.5.0
+    # - name: Testing
+    #   run: |
+    #     kubectl cluster-info
+    #     kubectl get pods -n kube-system
+    #     echo "current-context:" $(kubectl config current-context)
+    #     echo "environment-kubeconfig:" ${KUBECONFIG}
+    # - name: kubectl
+    #   run: kubectl get pods -A
+    # - run: sudo apt-get update && sudo apt-get install iptables -y
+    # - uses: WyriHaximus/github-action-helm3@v2
+    # - uses: actions-hub/kubectl@master
+    #   env:
+    #     KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+    #   with:
+    #     args: get pods
+    # - run: echo "${{ secrets.KUBE_CONFIG }}"
+    - name: Setting up kubeconfig online
+      if: ${{ !env.ACT }}
+      uses: azure/k8s-set-context@v2
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+        context: default # current-context from kubeconfig is used as default
+    - name: Install Kubectl
+      uses: azure/setup-kubectl@v2.0
+    - name: Get contexts
+      run: kubectl config get-contexts   
+    # - name: "Write kube config"
+    #   run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode > $KUBECONFIG
+    # - name: Check kube_config
+    #   run: cat $HOME/.kube/config
+    - name: Test Kube connection
+      run: kubectl get node  -o wide
+    # - uses: actions/setup-node@v2
+      # - uses: actions/setup-python@v2
+    - name: Install Helmsman
+      run: 'wget -c https://github.com/Praqma/helmsman/releases/download/v3.8.1/helmsman_3.8.1_linux_amd64.tar.gz -O - | tar -xz -C /usr/local/bin/'
+      # - run: which helmsman
+      # - run: ls /usr/local/bin/
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: v3.7.1
+    - name: helm-diff
+      run: helm plugin install https://github.com/databus23/helm-diff
+      # name: "More"
+    - name: test helm
+      run: helm version
+    - name: test helmsman 
+      run: helmsman  -v
+    - name: "make staging.dry"
+      run: make staging.dry
+  
