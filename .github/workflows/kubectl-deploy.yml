@@ -21,10 +21,10 @@ jobs:
     # image: andrius/sshuttle
     # runs-on: ubuntu-latest
     runs-on: [self-hosted,denbi]
-    container:
+    # container:
       # image: ubuntu:20.04
       # image: nektos/act-environments-ubuntu:18.04
-      image: praqma/helmsman:v3.8.1-helm-v3.7.2
+      # image: praqma/helmsman:v3.8.1-helm-v3.7.2
     steps:
     # - run: sleep 5
     - uses: actions/checkout@master
@@ -34,8 +34,8 @@ jobs:
       # if: ${{ !env.ACT }}
       # run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
     # - run: sleep 10000
-    - name: Install deps
-      run: apk add --update coreutils
+    # - name: Install deps
+      # run: apk add --update coreutils
     - name: Setting up kubeconfig - offline
       env:
         KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
@@ -46,6 +46,17 @@ jobs:
       run: kubectl config get-contexts   
     - name: Test Kube connection
       run: kubectl get node  -o wide
+    - name: Install helm
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: v3.7.1
+    - name: Install Helmsman
+      run: 'wget -c https://github.com/Praqma/helmsman/releases/download/v3.8.1/helmsman_3.8.1_linux_amd64.tar.gz -O - | tar -xz -C /usr/local/bin/'
     - name: test helm
       run: helm version
     - name: test helmsman 
