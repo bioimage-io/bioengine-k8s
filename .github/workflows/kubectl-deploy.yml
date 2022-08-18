@@ -11,7 +11,7 @@ env:
   S3_SECRET_KEY: ${{secrets.S3_SECRET_KEY}}
   MINIO_ROOTUSER: ${{secrets.MINIO_ROOTUSER}}
   MINIO_ROOTPASSWORD: ${{secrets.MINIO_ROOTPASSWORD}}
-  KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+  KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
   KUBECONFIG: .kube/config
 
 jobs:
@@ -26,6 +26,7 @@ jobs:
       # image: nektos/act-environments-ubuntu:18.04
       image: praqma/helmsman:v3.8.1-helm-v3.7.2
     steps:
+    - run: sleep 5
     - uses: actions/checkout@master
     # - run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> "$KUBECONFIG"
     - run: mkdir -p .kube
@@ -39,6 +40,8 @@ jobs:
       env:
         KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
       run: 'echo "$KUBE_CONFIG" | base64 --decode >> .kube/config'
+    - name: Checking secret
+      run: echo $KUBE_CONFIG
       
 
     # - run: cat .kube/config
@@ -131,8 +134,8 @@ jobs:
     #   uses: azure/setup-helm@v3
     #   with:
     #     version: v3.7.1
-    # - name: helm-diff
-      # run: helm plugin install https://github.com/databus23/helm-diff
+    - name: helm-diff
+      run: helm plugin install https://github.com/databus23/helm-diff
       # name: "More"
     - name: test helm
       run: helm version
