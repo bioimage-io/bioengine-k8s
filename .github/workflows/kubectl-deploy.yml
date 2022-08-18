@@ -1,10 +1,8 @@
-name: remote ssh command
+name: test-deploy
 on:
   push:
-    branches:
-      - main
-      - master
-
+  workflow_call:
+  
 env:
   JWT_SECRET: ${{secrets.JWT_SECRET}}
   S3_ACCESS_KEY: ${{secrets.JWT_SECRET}}
@@ -15,12 +13,11 @@ env:
   KUBECONFIG: .kube/config
 
 jobs:
-  
-  deploy:
-    name: deploy
+  test-deploy:
+    name: test-deploy
     # image: andrius/sshuttle
     # runs-on: ubuntu-latest
-    runs-on: [self-hosted,denbi]
+    runs-on: [self-hosted,denbi,ubuntu-latest]
     # container:
       # image: ubuntu:20.04
       # image: nektos/act-environments-ubuntu:18.04
@@ -70,4 +67,3 @@ jobs:
       run: helmsman  -v
     - name: "make staging.dry"
       run: helmsman --debug --group staging -f helmsman.yaml --subst-env-values --dry-run
-  
