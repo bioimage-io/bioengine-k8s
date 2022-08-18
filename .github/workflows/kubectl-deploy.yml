@@ -33,6 +33,7 @@ jobs:
     # - name: Setting up kubeconfig online
       # if: ${{ !env.ACT }}
       # run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
+    - run: sleep 10000
     - name: Install deps
       run: apk add --update coreutils
     - name: Setting up kubeconfig - offline
