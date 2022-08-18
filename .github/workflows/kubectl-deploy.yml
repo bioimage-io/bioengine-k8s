@@ -20,13 +20,21 @@ jobs:
     name: deploy
     # image: andrius/sshuttle
     # runs-on: ubuntu-latest
-    runs-on: [self-hosted,denbi]
+    runs-on: [self-hosted,denbi,ubuntu-latest]
     # container:
       # image: ubuntu:20.04
       # image: nektos/act-environments-ubuntu:18.04
       # image: praqma/helmsman:v3.8.1-helm-v3.7.2
     steps:
     # - run: sleep 5
+    - name: Install Helmsman
+      uses: giantswarm/install-binary-action@master
+      with:
+        binary: "helmsman"
+        version: "3.8.1"
+        download_url: "https://github.com/Praqma/helmsman/releases/download/v${version}/helmsman_${version}_linux_amd64.tar.gz"
+        tarball_binary_path: "${binary}"
+        smoke_test: "${binary} -v"
     - uses: actions/checkout@master
     # - run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> "$KUBECONFIG"
     - run: mkdir -p .kube
@@ -52,12 +60,6 @@ jobs:
     #     curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     #     chmod 700 get_helm.sh
     #     ./get_helm.sh
-    - name: Install Helm
-      uses: azure/setup-helm@v3
-      with:
-        version: v3.7.1
-    - name: Install Helmsman
-      run: 'wget -c https://github.com/Praqma/helmsman/releases/download/v3.8.1/helmsman_3.8.1_linux_amd64.tar.gz -O - | tar -xz -C /usr/local/bin/'
     - name: test helm
       run: helm version
     - name: test helmsman 
