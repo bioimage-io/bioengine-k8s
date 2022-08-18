@@ -20,7 +20,7 @@ jobs:
     name: deploy
     # image: andrius/sshuttle
     # runs-on: ubuntu-latest
-    runs-on: [self-hosted,denbi]
+    runs-on: [self-hosted,denbi,ubuntu-latest]
     # container:
       # image: ubuntu:20.04
       # image: nektos/act-environments-ubuntu:18.04
@@ -42,6 +42,7 @@ jobs:
       run: 'echo "$KUBE_CONFIG" | base64 --decode >> .kube/config'
     - name: Checking secret
       run: echo $KUBE_CONFIG
+    - uses: azure/setup-kubectl@v3
     - name: Get contexts
       run: kubectl config get-contexts   
     - name: Test Kube connection
