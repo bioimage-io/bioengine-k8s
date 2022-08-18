@@ -34,7 +34,6 @@ jobs:
       # if: ${{ !env.ACT }}
       # run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
     - name: Install deps
-      if: ${{ env.ACT }}
       run: apk add --update coreutils
     - name: Setting up kubeconfig - offline
       env:
