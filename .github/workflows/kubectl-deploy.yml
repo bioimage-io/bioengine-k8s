@@ -24,32 +24,32 @@ jobs:
     container:
       # image: ubuntu:20.04
       # image: nektos/act-environments-ubuntu:18.04
-      image: praqma/helmsman:v3.13.1-helm-v3.9.2
+      image: praqma/helmsman:v3.8.1-helm-v3.7.2
     steps:
-    - run: sleep 5
+    # - run: sleep 5
     - uses: actions/checkout@master
     # - run: echo "${{secrets.KUBE_CONFIG}}" | base64 --decode >> "$KUBECONFIG"
     - run: mkdir -p .kube
     # - name: Setting up kubeconfig online
       # if: ${{ !env.ACT }}
       # run: echo "${{secrets.KUBE_CONFIG}}" >> .kube/config
-    - name: Install deps
+    # - name: Install deps
       # if: ${{ env.ACT }}
-      run: apk add --update coreutils make
-    # - name: Setting up kubeconfig - offline
-    #   env:
-    #     KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
-    #   run: 'echo "$KUBE_CONFIG" | base64 --decode >> .kube/config'
-    # - name: Checking secret
-    #   run: echo $KUBE_CONFIG
-    # - name: Get contexts
-    #   run: kubectl config get-contexts   
-    # - name: Test Kube connection
-    #   run: kubectl get node  -o wide
+      # run: apk add --update coreutils make
+    - name: Setting up kubeconfig - offline
+      env:
+        KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
+      run: 'echo "$KUBE_CONFIG" | base64 --decode >> .kube/config'
+    - name: Checking secret
+      run: echo $KUBE_CONFIG
+    - name: Get contexts
+      run: kubectl config get-contexts   
+    - name: Test Kube connection
+      run: kubectl get node  -o wide
     - name: test helm
       run: helm version
     - name: test helmsman 
       run: helmsman  -v
     - name: "make staging.dry"
-      run: make staging.dry
+      run: helmsman --debug --group staging -f helmsman.yaml --subst-env-values --dry-run
   
