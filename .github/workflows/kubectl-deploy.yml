@@ -20,7 +20,7 @@ jobs:
     name: deploy
     # image: andrius/sshuttle
     # runs-on: ubuntu-latest
-    runs-on: [self-hosted,denbi,ubuntu-latest]
+    runs-on: [self-hosted,denbi]
     # container:
       # image: ubuntu:20.04
       # image: nektos/act-environments-ubuntu:18.04
