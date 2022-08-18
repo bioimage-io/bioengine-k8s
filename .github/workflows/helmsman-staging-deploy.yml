@@ -1,0 +1,24 @@
+name: staging-deploy
+on:
+  push:
+    branches:
+      - main
+      - master
+
+env:
+  JWT_SECRET: ${{secrets.JWT_SECRET}}
+  S3_ACCESS_KEY: ${{secrets.JWT_SECRET}}
+  S3_SECRET_KEY: ${{secrets.S3_SECRET_KEY}}
+  MINIO_ROOTUSER: ${{secrets.MINIO_ROOTUSER}}
+  MINIO_ROOTPASSWORD: ${{secrets.MINIO_ROOTPASSWORD}}
+  KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
+  KUBECONFIG: .kube/config
+
+jobs:
+  staging-deploy:
+    needs: test-deploy
+    runs-on: [self-hosted,denbi]
+    steps:
+    - uses: amun-ai/hyhpha-k8s/.github/workflows/called-workflow.yml@main
+    - name: "make staging.dry"
+      run: helmsman --debug --group staging -f helmsman.yaml --subst-env-values
