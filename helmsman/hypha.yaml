@@ -169,18 +169,15 @@ tritoninfereceserver-hypha:
       - imjoy.duckdns.org
       - hypha.imjoy.io
   resources:
-    requests:
-      nvidia.com/gpu: 1
-      memory: "32Gi"
-      cpu: "4"
-      ephemeral-storage: "64Gi"
     limits:
-      nvidia.com/gpu: 1
-      memory: "32Gi"
-      cpu: "4"
-      ephemeral-storage: "128Gi"
-# service:
-#   type: ClusterIP
-
+      cpu: "16"
+      ephemeral-storage: 256Gi
+      memory: 32Gi
+      nvidia.com/gpu: "1"
+    requests:
+      cpu: "8"
+      ephemeral-storage: 64Gi
+      memory: 32Gi
+      nvidia.com/gpu: "1"
   service:
     type: ClusterIP
