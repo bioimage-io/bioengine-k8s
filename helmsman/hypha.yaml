@@ -47,9 +47,9 @@ ingress:
   path: /
   # Used to create an Ingress record.
   hosts:
-    - imjoy.duckdns.org
-    - hypha.imjoy.io
-  annotations: 
+  - imjoy.duckdns.org
+  - hypha.imjoy.io
+  annotations:
     # kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
     cert-manager.k8s.io/acme-challenge-type: http01
@@ -57,10 +57,10 @@ ingress:
     certmanager.k8s.io/acme-http01-edit-in-place: "true"
   labels: {}
   tls:
-    - secretName: tls-secret
-      hosts:
-        - imjoy.duckdns.org
-        - hypha.imjoy.io
+  - secretName: tls-secret
+    hosts:
+    - imjoy.duckdns.org
+    - hypha.imjoy.io
 
 # Best not to enforce strict ingress
 ingress-nginx:
@@ -100,7 +100,7 @@ minio:
   replicas: 4
   ingress:
     enabled: true
-    annotations: 
+    annotations:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.k8s.io/acme-challenge-type: http01
@@ -110,19 +110,19 @@ minio:
     #   nginx.ingress.kubernetes.io/rewrite-target: /$2
     path: /
     hosts:
-      # - imjoy.duckdns.org
-      - hs3.imjoy.io
+    - imjoy.duckdns.org
+    - hs3.imjoy.io
     tls:
-      - secretName: hs3-minio
-        hosts:
-          - hs3.imjoy.io
+    - secretName: hs3-minio
+      hosts:
+      - hs3.imjoy.io
   resources:
     requests:
       memory: 2Gi
   persistence:
     size: 10Gi
   consoleIngress:
-    annotations: 
+    annotations:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.k8s.io/acme-challenge-type: http01
@@ -130,11 +130,11 @@ minio:
       certmanager.k8s.io/acme-http01-edit-in-place: "true"
     enabled: true
     hosts:
-      - hs3c.imjoy.io
+    - hs3c.imjoy.io
     tls:
-      - secretName: hs3c-minio
-        hosts:
-          - hs3c.imjoy.io
+    - secretName: hs3c-minio
+      hosts:
+      - hs3c.imjoy.io
 tritoninfereceserver-hypha:
   enabled: true
   fullnameOverride: "tritoninfereceserver"
@@ -154,9 +154,9 @@ tritoninfereceserver-hypha:
     path: /triton(/|$)(.*)
     # Used to create an Ingress record.
     hosts:
-      - imjoy.duckdns.org
-      - hypha.imjoy.io
-    annotations: 
+    - imjoy.duckdns.org
+    - hypha.imjoy.io
+    annotations:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.k8s.io/acme-challenge-type: http01
@@ -164,10 +164,10 @@ tritoninfereceserver-hypha:
       certmanager.k8s.io/acme-http01-edit-in-place: "true"
     labels: {}
     tls:
-      - secretName: tls-secret
-        hosts:
-          - imjoy.duckdns.org
-          - hypha.imjoy.io
+    - secretName: tls-secret
+      hosts:
+      - imjoy.duckdns.org
+      - hypha.imjoy.io
   resources:
     requests:
       nvidia.com/gpu: 1
