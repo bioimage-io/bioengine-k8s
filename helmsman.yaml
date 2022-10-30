@@ -33,14 +33,14 @@ settings:
 
 appsTemplates:
   hypha: &hypha
-    name: "hypha"
+    # name: "hypha"
     chart: "hypha/hypha"
-    enabled: true
+    # enabled: true
     version: "0.15.8"
-    wait: true
+    wait: false
     timeout: 600
-    group: "production"
-    namespace: "hypha"
+    # group: "production"
+    # namespace: "hypha"
     # Set secrets here
     set:
       jwt_secret: $$JWT_SECRET
@@ -48,8 +48,8 @@ appsTemplates:
       # s3_secret_key: $$MINIO_ROOTPASSWORD
       # minio.rootUser: $$MINIO_ROOTUSER
       # minio.rootPassword: $$MINIO_ROOTPASSWORD
-    valuesFiles:
-      - helmsman/hypha.yaml
+    # valuesFiles:
+      # - helmsman/hypha.yaml
 
 apps:
 
