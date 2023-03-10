@@ -15,6 +15,7 @@ namespaces:
   cert-manager:
   nvidia-gpu-operator:
   ingress-nginx:
+  minio:
 
 helmRepos:
   jetstack: "https://charts.jetstack.io"
