@@ -11,7 +11,7 @@ metadata:
 
 namespaces:
   hypha:
-  hypha-staging:
+  hypha-dev:
   cert-manager:
   nvidia-gpu-operator:
   ingress-nginx:
@@ -39,7 +39,6 @@ appsTemplates:
     version: "0.15.8"
     wait: true
     timeout: 600
-    group: "production"
     namespace: "hypha"
     # Set secrets here
     set:
@@ -53,24 +52,24 @@ appsTemplates:
 
 apps:
 
-  hypha-production:
+  hypha-prod:
     <<: *hypha
     name: "hypha"
-    group: "production"
+    group: "prod"
     enabled: true
     namespace: "hypha"
     valuesFiles:
       - helmsman/hypha.yaml
 
-  hypha-staging:
+  hypha-dev:
     <<: *hypha
     name: "hypha"
     enabled: true
-    group: "staging"
-    namespace: "hypha-staging"
+    group: "dev"
+    namespace: "hypha-dev"
     valuesFiles:
       - helmsman/hypha.yaml
-      - helmsman/staging.hypha.yaml
+      - helmsman/dev.hypha.yaml
 
   # triton-hypha:
   #   name: "triton-hypha"
@@ -89,7 +88,7 @@ apps:
     # timeout: 120
     version: "v1.4.2"
     wait: true
-    group: "production"
+    group: "prod"
     namespace: "cert-manager"
     set:
       installCRDs: true
@@ -119,7 +118,7 @@ apps:
     chart: "nvdp/nvidia-device-plugin"
     enabled: true
     version: "0.10.0"
-    group: "production"
+    group: "prod"
 
   nvidia-gpu-operator:
     name: "nvidia-gpu-operator"
@@ -127,16 +126,16 @@ apps:
     chart: "nvidia/gpu-operator"
     enabled: true
     version: "v1.10.1"
-    group: "production"
+    group: "prod"
 
   ingress-nginx:
     name: "ingress-nginx"
     namespace: "ingress-nginx"
     chart: "ingress-nginx/ingress-nginx"
-    group: "production"
+    group: "prod"
     priority: -10
     enabled: true
-    version: "3.35.0"
+    version: "4.6.0"
     valuesFiles:
       - helmsman/ingress-nginx.yaml
 

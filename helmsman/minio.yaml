@@ -22,7 +22,7 @@ ingress:
 #     # nginx.ingress.kubernetes.io/whitelist-source-range: 0.0.0.0/0
   # path: /s3(/|$)(.*)
   hosts:
-    - imjoy-s3.duckdns.org
+    - imjoy-s3.${HOSTNAME}
 #   # tls: []
 # ## Configure resource requests and limits
 # ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
