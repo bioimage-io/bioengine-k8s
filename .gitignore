@@ -1,4 +1,4 @@
 secrets.yaml
 .history
 .helmsman-tmp
-.env
+*.env
