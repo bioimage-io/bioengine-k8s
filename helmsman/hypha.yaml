@@ -19,7 +19,7 @@ image:
   repository: ghcr.io/imjoy-team/hypha
 # s3_access_key: rootuser
 # s3_secret_key: rootpass123
-triton_url: "http://tritoninferenceserver.tritoninferenceserver.svc.cluster.local:8000"
+triton_url: "tritoninferenceserver:8000"
 # port: 9520
 # productionMode: false # using `letsencrypt-prod` if set to true
 service:
@@ -140,15 +140,15 @@ tritoninfereceserver-hypha:
   fullnameOverride: "tritoninfereceserver"
   replicaCount: 1
   image:
-    # imageName: nvcr.io/nvidia/tritonserver:22.04-py3
-    imageName: ghcr.io/imjoy-team/triton:22.04-py3
+    imageName: nvcr.io/nvidia/tritonserver:23.04-py3
     pullPolicy: IfNotPresent
     # modelRepositoryPath: s3://imjoy-s3.pasteur.fr:80/model-repository
-    modelRepositoryPath: /model-repository
+    modelRepository: s3://http://minio:9000/model-repository
+    # modelRepositoryPath: /model-repository
     modelSnapshotsPath: /model-snapshots
     numGpus: 1
-    s3Endpoint: https://uk1s3.embassy.ebi.ac.uk
-    s3Bucket: s3://model-repository/
+    # s3Endpoint: https://uk1s3.embassy.ebi.ac.uk
+    # s3Bucket: s3://model-repository/
   ingress:
     enabled: false
     path: /triton(/|$)(.*)
@@ -167,19 +167,17 @@ tritoninfereceserver-hypha:
         hosts:
           - ${HOSTNAME}
 
+  # resources:
   resources:
-    requests:
-      nvidia.com/gpu: 1
-      memory: "32Gi"
-      cpu: "4"
-      ephemeral-storage: "64Gi"
     limits:
-      nvidia.com/gpu: 1
-      memory: "32Gi"
       cpu: "4"
-      ephemeral-storage: "128Gi"
-      # service:
-      #   type: ClusterIP
-
+      ephemeral-storage: 256Gi
+      memory: 80Gi
+      nvidia.com/gpu: "1"
+    requests:
+      cpu: "4"
+      ephemeral-storage: 128Gi
+      memory: 80Gi
+      nvidia.com/gpu: "1"
   service:
     type: ClusterIP
