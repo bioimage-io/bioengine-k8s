@@ -36,8 +36,8 @@ appsTemplates:
     name: "hypha"
     chart: "hypha/hypha"
     enabled: true
-    version: "0.15.8"
-    wait: true
+    version: "0.15.10"
+    wait: false
     timeout: 600
     namespace: "hypha"
     # Set secrets here
@@ -65,6 +65,7 @@ apps:
     <<: *hypha
     name: "hypha"
     enabled: true
+    priority: -100
     group: "dev"
     namespace: "hypha-dev"
     valuesFiles:
