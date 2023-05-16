@@ -87,7 +87,7 @@ apps:
     enabled: true
     priority: -10
     # timeout: 120
-    version: "v1.4.2"
+    version: "v1.11.2"
     wait: true
     group: "prod"
     namespace: "cert-manager"
