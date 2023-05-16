@@ -22,7 +22,7 @@ minio:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.k8s.io/acme-challenge-type: http01
-      cert-manager.io/cluster-issuer: letsencrypt-prod
+      cert-manager.io/cluster-issuer: letsencrypt
       certmanager.k8s.io/acme-http01-edit-in-place: "true"
     hosts:
       - dev.hs3.imjoy.io
@@ -35,7 +35,7 @@ minio:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.k8s.io/acme-challenge-type: http01
-      cert-manager.io/cluster-issuer: letsencrypt-dev
+      cert-manager.io/cluster-issuer: letsencrypt
       certmanager.k8s.io/acme-http01-edit-in-place: "true"
     hosts:
       - dev.hs3c.${HOSTNAME}
