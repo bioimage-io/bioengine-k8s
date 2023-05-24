@@ -135,15 +135,16 @@ minio:
         hosts:
           - hs3c.${HOSTNAME}
 
-tritoninfereceserver-hypha:
+tritoninferenceserver-hypha:
   enabled: true
-  fullnameOverride: "tritoninfereceserver"
+  fullnameOverride: "tritoninferenceserver"
   replicaCount: 1
   image:
     imageName: nvcr.io/nvidia/tritonserver:23.04-py3
     pullPolicy: IfNotPresent
     # modelRepositoryPath: s3://imjoy-s3.pasteur.fr:80/model-repository
-    modelRepository: s3://http://minio:9000/model-repository
+    # modelRepository: s3://http://minio:9000/model-repository
+    modelRepository: s3://https://uk1s3.embassy.ebi.ac.uk:443/model-repository
     # modelRepositoryPath: /model-repository
     modelSnapshotsPath: /model-snapshots
     numGpus: 1
