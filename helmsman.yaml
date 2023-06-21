@@ -26,7 +26,7 @@ helmRepos:
   nvdp: "https://nvidia.github.io/k8s-device-plugin"
   nvidia: "https://nvidia.github.io/gpu-operator"
   minio: "https://charts.min.io/"
-
+  kuberay: "https://ray-project.github.io/kuberay-helm/"
   # imjoy: https://github.com/imjoy-team/imjoy-app-engine/charts
 
 settings:
@@ -154,3 +154,18 @@ apps:
   #   set:
   #     rootUser: rootuser
   #     rootPassword: rootpass123
+
+  kuberay-operator:
+    name: "kuberay-operator"
+    namespace: "hypha"
+    chart: "kuberay/kuberay-operator"
+    enabled: true
+    version: "0.5.0"
+    group: "prod" 
+  kuberay-apiserver:
+    name: "kuberay-apiserver"
+    namespace: "hypha"
+    chart: "kuberay/kuberay-apiserver"
+    enabled: true
+    version: "0.5.0"
+    group: "prod" 
