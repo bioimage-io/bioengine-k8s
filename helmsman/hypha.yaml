@@ -16,7 +16,8 @@ jwt_secret: 352esl345IEo3kjsw3fsdf39sdfl3K23KJE#D*#4d
 imagePullPolicy: Always
 image:
   # repository: ghcr.io/ctr26/hypha
-  repository: ghcr.io/imjoy-team/hypha
+  repository: ghcr.io/amun-ai/hypha
+  tag: 0.15.15
 # s3_access_key: rootuser
 # s3_secret_key: rootpass123
 triton_url: "tritoninferenceserver:8000"
@@ -139,14 +140,26 @@ tritoninferenceserver-hypha:
   enabled: true
   fullnameOverride: "tritoninferenceserver"
   replicaCount: 1
+  env:
+    - name: AWS_ACCESS_KEY_ID
+      value: ${S3_ACCESS_KEY}
+    - name: AWS_SECRET_ACCESS_KEY
+      value: ${S3_SECRET_KEY}
+    - name: AWS_REGION
+      value: us-east-1
+    - name: S3_ENDPOINT
+      value: ${S3_ENDPOINT_URL}
+    - name: S3_USE_HTTPS
+      value: "0"
   image:
     imageName: nvcr.io/nvidia/tritonserver:23.04-py3
     pullPolicy: IfNotPresent
     # modelRepositoryPath: s3://imjoy-s3.pasteur.fr:80/model-repository
     # modelRepository: s3://http://minio:9000/model-repository
-    modelRepository: s3://https://uk1s3.embassy.ebi.ac.uk:443/model-repository
+    # modelRepository: s3://https://uk1s3.embassy.ebi.ac.uk:443/model-repository
     # modelRepositoryPath: /model-repository
     modelSnapshotsPath: /model-snapshots
+    modelRepository: s3://http://minio:9000/model-repository
     numGpus: 1
     # s3Endpoint: https://uk1s3.embassy.ebi.ac.uk
     # s3Bucket: s3://model-repository/
@@ -171,14 +184,14 @@ tritoninferenceserver-hypha:
   # resources:
   resources:
     limits:
-      cpu: "4"
+      cpu: "8"
       ephemeral-storage: 256Gi
-      memory: 80Gi
+      memory: 96Gi
       nvidia.com/gpu: "1"
     requests:
-      cpu: "4"
+      cpu: "8"
       ephemeral-storage: 128Gi
-      memory: 80Gi
+      memory: 96Gi
       nvidia.com/gpu: "1"
   service:
     type: ClusterIP
