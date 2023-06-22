@@ -119,7 +119,7 @@ minio:
     requests:
       memory: 2Gi
   persistence:
-    size: 10Gi
+    size: 64Gi
   consoleIngress:
     annotations:
       # kubernetes.io/ingress.class: nginx

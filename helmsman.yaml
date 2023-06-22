@@ -39,7 +39,7 @@ appsTemplates:
     version: "0.15.13"
     wait: false
     timeout: 600
-    namespace: "hypha"
+    # namespace: "hypha"
     # Set secrets here
     set:
       jwt_secret: $$JWT_SECRET
