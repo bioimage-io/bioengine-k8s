@@ -36,7 +36,7 @@ appsTemplates:
     name: "hypha"
     chart: "hypha/hypha"
     enabled: true
-    version: "0.15.13"
+    version: "0.15.25"
     wait: false
     timeout: 600
     # namespace: "hypha"
@@ -161,7 +161,8 @@ apps:
     chart: "kuberay/kuberay-operator"
     enabled: true
     version: "0.5.0"
-    group: "prod" 
+    group: "prod"
+ 
   kuberay-apiserver:
     name: "kuberay-apiserver"
     namespace: "hypha"

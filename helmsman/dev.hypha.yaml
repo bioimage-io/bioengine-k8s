@@ -56,4 +56,8 @@ tritoninfereceserver-hypha:
         hosts:
           - dev.${HOSTNAME}
 
-
+  resources:
+    limits:
+      nvidia.com/gpu: "1"
+    requests:
+      nvidia.com/gpu: "1"
