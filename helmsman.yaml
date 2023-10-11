@@ -22,6 +22,7 @@ helmRepos:
   ingress-nginx: "https://kubernetes.github.io/ingress-nginx"
   # trow: "https://trow.io"
   # triton-hypha: "file://./triton"
+  # hypha: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
   hypha: "https://amun-ai.github.io/hypha-helm-charts/"
   nvdp: "https://nvidia.github.io/k8s-device-plugin"
   nvidia: "https://nvidia.github.io/gpu-operator"
@@ -36,7 +37,7 @@ appsTemplates:
     name: "hypha"
     chart: "hypha/hypha"
     enabled: true
-    version: "0.15.25"
+    version: "0.16.0"
     wait: false
     timeout: 600
     # namespace: "hypha"
@@ -49,9 +50,9 @@ appsTemplates:
       # minio.rootPassword: $$MINIO_ROOTPASSWORD
     valuesFiles:
       - helmsman/hypha.yaml
+    postInstall: mc/cron.yaml
 
 apps:
-
   hypha-prod:
     <<: *hypha
     name: "hypha"
@@ -64,7 +65,7 @@ apps:
   hypha-dev:
     <<: *hypha
     name: "hypha"
-    enabled: true
+    enabled: false
     priority: -100
     group: "dev"
     namespace: "hypha-dev"
@@ -95,6 +96,8 @@ apps:
       installCRDs: true
       ingressShim.defaultIssuerKind: "ClusterIssuer"
       ingressShim.defaultIssuerName: "letsencrypt"
+      # config.leaderElectionConfig.namespace: "cert-manager"
+      global.leaderElection.namespace: "cert-manager"
     hooks:
       postUpgrade: "helmsman/cluster_issuer.yaml"
       postInstall: "helmsman/cluster_issuer.yaml"
@@ -111,13 +114,13 @@ apps:
   #     proxy.username: "$CI_REGISTRY_USER"
   #     proxy.password: "$CI_REGISTRY_PASSWORD"
   #   valuesFiles:
-  #     - docker-registry/values.yaml 
+  #     - docker-registry/values.yaml
 
   nvidia-device-plugin:
     name: "nvidia-device-plugin"
     namespace: "nvidia-gpu-operator"
     chart: "nvdp/nvidia-device-plugin"
-    enabled: true
+    enabled: false
     version: "0.10.0"
     group: "prod"
 
@@ -125,7 +128,7 @@ apps:
     name: "nvidia-gpu-operator"
     namespace: "nvidia-gpu-operator"
     chart: "nvidia/gpu-operator"
-    enabled: true
+    enabled: false
     version: "v1.10.1"
     group: "prod"
 
@@ -136,7 +139,7 @@ apps:
     group: "prod"
     priority: -10
     enabled: true
-    version: "4.6.0"
+    version: "4.8.0"
     valuesFiles:
       - helmsman/ingress-nginx.yaml
 
@@ -162,11 +165,11 @@ apps:
     enabled: true
     version: "0.5.0"
     group: "prod"
- 
+
   kuberay-apiserver:
     name: "kuberay-apiserver"
     namespace: "hypha"
     chart: "kuberay/kuberay-apiserver"
     enabled: true
     version: "0.5.0"
-    group: "prod" 
+    group: "prod"
