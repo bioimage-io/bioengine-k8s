@@ -6,9 +6,9 @@ acmeEmail: "oeway007@gmail.com"
 container: imjoy/imjoy-app-engine
 certSecretName: imjoy-app-engine-tls
 imjoyHostName: https://hypha.${HOSTNAME}
-s3ConsoleHostName: https://hs3c.${HOSTNAME}
-s3_endpoint_url_public: https://hs3.${HOSTNAME}
-# publicEndpointUrl: hs3.imjoy.io
+s3ConsoleHostName: https://s3c.${HOSTNAME}
+s3_endpoint_url_public: https://s3.${HOSTNAME}
+# publicEndpointUrl: s3.imjoy.io
 auth0_audience: https://imjoy.eu.auth0.com/api/v2/
 auth0_domain: imjoy.eu.auth0.com
 jwt_secret: 352esl345IEo3kjsw3fsdf39sdfl3K23KJE#D*#4d
@@ -17,7 +17,7 @@ imagePullPolicy: Always
 image:
   # repository: ghcr.io/ctr26/hypha
   repository: ghcr.io/amun-ai/hypha
-  # tag: 0.15.15
+  tag: 0.15.33
 # s3_access_key: rootuser
 # s3_secret_key: rootpass123
 triton_url: "tritoninferenceserver:8000"
@@ -48,7 +48,7 @@ ingress:
   path: /
   # Used to create an Ingress record.
   hosts:
-    - ${HOSTNAME}
+    - hypha.${HOSTNAME}
   annotations:
     # kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
@@ -59,7 +59,7 @@ ingress:
   tls:
     - secretName: tls-secret
       hosts:
-        - ${HOSTNAME}
+        - hypha.${HOSTNAME}
 
 # Best not to enforce strict ingress
 ingress-nginx:
@@ -110,11 +110,11 @@ minio:
     path: /
     hosts:
       # - imjoy.duckdns.org
-      - hs3.${HOSTNAME}
+      - s3.${HOSTNAME}
     tls:
-      - secretName: hs3-minio
+      - secretName: s3-minio
         hosts:
-          - hs3.${HOSTNAME}
+          - s3.${HOSTNAME}
   # resources:
   #   requests:
   #     memory: 2Gi
@@ -124,17 +124,17 @@ minio:
     annotations:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
-      cert-manager.k8s.io/acme-challenge-type: http01
+      # cert-manager.k8s.io/acme-challenge-type: http01
       cert-manager.io/cluster-issuer: letsencrypt
-      certmanager.k8s.io/acme-http01-edit-in-place: "true"
+      # certmanager.k8s.io/acme-http01-edit-in-place: "true"
     enabled: true
     hosts:
-      - hs3c.${HOSTNAME}
+      - s3c.${HOSTNAME}
 
     tls:
-      - secretName: hs3c-minio
+      - secretName: s3c-minio
         hosts:
-          - hs3c.${HOSTNAME}
+          - s3c.${HOSTNAME}
 
 tritoninferenceserver-hypha:
   enabled: true
@@ -168,18 +168,18 @@ tritoninferenceserver-hypha:
     path: /triton(/|$)(.*)
     # Used to create an Ingress record.
     hosts:
-      - ${HOSTNAME}
+      - hypha.${HOSTNAME}
     annotations:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
-      cert-manager.k8s.io/acme-challenge-type: http01
+      # cert-manager.k8s.io/acme-challenge-type: http01
       cert-manager.io/cluster-issuer: letsencrypt
-      certmanager.k8s.io/acme-http01-edit-in-place: "true"
+      # certmanager.k8s.io/acme-http01-edit-in-place: "true"
     labels: {}
     tls:
       - secretName: tls-secret
         hosts:
-          - ${HOSTNAME}
+          - hypha.${HOSTNAME}
 
   # resources:
   resources:
@@ -187,11 +187,21 @@ tritoninferenceserver-hypha:
       cpu: "8"
       ephemeral-storage: 256Gi
       memory: 96Gi
-      nvidia.com/gpu: "2"
+      nvidia.com/gpu: "1"
     requests:
       cpu: "8"
       ephemeral-storage: 128Gi
       memory: 96Gi
-      nvidia.com/gpu: "2"
+      nvidia.com/gpu: "1"
   service:
     type: ClusterIP
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    gpuUtilization: 50
+    gpuMemoryUtilization: 50
+
+  nodeSelector:
+    cloud.google.com/gke-accelerator: "nvidia-tesla-t4"

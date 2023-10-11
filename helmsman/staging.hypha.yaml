@@ -1,23 +1,23 @@
-imjoyHostName: https://staging.hypha.imjoy.io
-s3ConsoleHostName: https://staging.hs3c.imjoy.io
-s3_endpoint_url_public: https://staging.hs3.imjoy.io
+imjoyHostName: https://dev.{HOSTNAME}
+s3ConsoleHostName: https://dev.hs3c.{HOSTNAME}
+s3_endpoint_url_public: https://dev.hs3.{HOSTNAME}
 
 cert-manager:
 
 ingress:
   hosts:
-    - staging.hypha.imjoy.io
+    - dev.{HOSTNAME}
   tls:
     - secretName: tls-secret
       hosts:
-        - staging.hypha.imjoy.io
+        - dev.{HOSTNAME}
 ingress-nginx:
 
 docker-registry:
 
 minio:
   ingress:
-    annotations: 
+    annotations:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.k8s.io/acme-challenge-type: http01
@@ -30,25 +30,25 @@ minio:
         hosts:
           - staging.hs3.imjoy.io
   consoleIngress:
-    annotations: 
+    annotations:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.k8s.io/acme-challenge-type: http01
       cert-manager.io/cluster-issuer: letsencrypt
       certmanager.k8s.io/acme-http01-edit-in-place: "true"
     hosts:
-      - staging.hs3c.imjoy.io
+      - dev.hs3c.{HOSTNAME}
     tls:
       - secretName: minio-hs3c-staging
         hosts:
-          - staging.hs3c.imjoy.io
+          - dev.hs3c.{HOSTNAME}
 
 tritoninfereceserver-hypha:
   image:
     hosts:
-      - staging.hypha.imjoy.io
+      - dev.{HOSTNAME}
     labels: {}
     tls:
       - secretName: tls-secret
         hosts:
-          - staging.hypha.imjoy.io
+          - dev.{HOSTNAME}
