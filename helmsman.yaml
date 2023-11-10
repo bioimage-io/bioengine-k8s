@@ -35,7 +35,7 @@ settings:
 appsTemplates:
   hypha: &hypha
     name: "hypha"
-    chart: "hypha/hypha"
+    chart: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
     enabled: true
     version: "0.16.9"
     wait: false
@@ -50,7 +50,7 @@ appsTemplates:
       # minio.rootPassword: $$MINIO_ROOTPASSWORD
     valuesFiles:
     - helmsman/hypha.yaml
-    postInstall: mc/cron.yaml
+    postInstall: helmsman/bmz_minio_cron.yaml
 
 apps:
   hypha-prod:
