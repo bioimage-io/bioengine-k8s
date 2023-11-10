@@ -37,7 +37,7 @@ appsTemplates:
     name: "hypha"
     chart: "hypha/hypha"
     enabled: true
-    version: "0.16.0"
+    version: "0.16.9"
     wait: false
     timeout: 600
     # namespace: "hypha"
@@ -49,29 +49,29 @@ appsTemplates:
       # minio.rootUser: $$MINIO_ROOTUSER
       # minio.rootPassword: $$MINIO_ROOTPASSWORD
     valuesFiles:
-      - helmsman/hypha.yaml
+    - helmsman/hypha.yaml
     postInstall: mc/cron.yaml
 
 apps:
   hypha-prod:
-    <<: *hypha
+    !!merge <<: *hypha
     name: "hypha"
     group: "prod"
     enabled: true
     namespace: "hypha"
     valuesFiles:
-      - helmsman/hypha.yaml
+    - helmsman/hypha.yaml
 
   hypha-dev:
-    <<: *hypha
+    !!merge <<: *hypha
     name: "hypha"
     enabled: false
     priority: -100
     group: "dev"
     namespace: "hypha-dev"
     valuesFiles:
-      - helmsman/hypha.yaml
-      - helmsman/dev.hypha.yaml
+    - helmsman/hypha.yaml
+    - helmsman/dev.hypha.yaml
 
   # triton-hypha:
   #   name: "triton-hypha"
@@ -141,7 +141,7 @@ apps:
     enabled: true
     version: "4.8.0"
     valuesFiles:
-      - helmsman/ingress-nginx.yaml
+    - helmsman/ingress-nginx.yaml
 
   # minio:
   #   name: "minio"

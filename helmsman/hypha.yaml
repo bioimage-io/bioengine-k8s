@@ -17,7 +17,7 @@ imagePullPolicy: Always
 image:
   # repository: ghcr.io/ctr26/hypha
   repository: ghcr.io/amun-ai/hypha
-  tag: 0.15.33
+  tag: 0.15.35
 # s3_access_key: rootuser
 # s3_secret_key: rootpass123
 triton_url: "tritoninferenceserver:8000"
@@ -25,7 +25,7 @@ triton_url: "tritoninferenceserver:8000"
 # productionMode: false # using `letsencrypt-prod` if set to true
 service:
   name: hypha
-  type: ClusterIP
+  type: NodePort
   # sessionAffinity: None
   # sessionAffinityConfig: {}
   # clusterIP:
@@ -48,7 +48,7 @@ ingress:
   path: /
   # Used to create an Ingress record.
   hosts:
-    - hypha.${HOSTNAME}
+  - hypha.${HOSTNAME}
   annotations:
     # kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
@@ -57,9 +57,9 @@ ingress:
     certmanager.k8s.io/acme-http01-edit-in-place: "true"
   labels: {}
   tls:
-    - secretName: tls-secret
-      hosts:
-        - hypha.${HOSTNAME}
+  - secretName: tls-secret
+    hosts:
+    - hypha.${HOSTNAME}
 
 # Best not to enforce strict ingress
 ingress-nginx:
@@ -92,8 +92,8 @@ minio:
   # nameOverride: "minio"
   fullnameOverride: "minio"
   enabled: true
-  # rootUser: rootuser
-  # rootPassword: rootpass123
+  rootUser: ${S3_ACCESS_KEY}
+  rootPassword: ${S3_SECRET_KEY}
   # accessKey: ""
   # secretKey: ""
   replicas: 4
@@ -109,12 +109,12 @@ minio:
     #   nginx.ingress.kubernetes.io/rewrite-target: /$2
     path: /
     hosts:
-      # - imjoy.duckdns.org
-      - s3.${HOSTNAME}
+    # - imjoy.duckdns.org
+    - s3.${HOSTNAME}
     tls:
-      - secretName: s3-minio
-        hosts:
-          - s3.${HOSTNAME}
+    - secretName: s3-minio
+      hosts:
+      - s3.${HOSTNAME}
   # resources:
   #   requests:
   #     memory: 2Gi
@@ -129,28 +129,17 @@ minio:
       # certmanager.k8s.io/acme-http01-edit-in-place: "true"
     enabled: true
     hosts:
-      - s3c.${HOSTNAME}
+    - s3c.${HOSTNAME}
 
     tls:
-      - secretName: s3c-minio
-        hosts:
-          - s3c.${HOSTNAME}
+    - secretName: s3c-minio
+      hosts:
+      - s3c.${HOSTNAME}
 
 tritoninferenceserver-hypha:
   enabled: true
   fullnameOverride: "tritoninferenceserver"
   replicaCount: 1
-  env:
-    - name: AWS_ACCESS_KEY_ID
-      value: ${S3_ACCESS_KEY}
-    - name: AWS_SECRET_ACCESS_KEY
-      value: ${S3_SECRET_KEY}
-    - name: AWS_REGION
-      value: us-east-1
-    - name: S3_ENDPOINT
-      value: ${S3_ENDPOINT_URL}
-    - name: S3_USE_HTTPS
-      value: "0"
   image:
     imageName: nvcr.io/nvidia/tritonserver:23.04-py3
     pullPolicy: IfNotPresent
@@ -163,12 +152,23 @@ tritoninferenceserver-hypha:
     numGpus: 1
     # s3Endpoint: https://uk1s3.embassy.ebi.ac.uk
     # s3Bucket: s3://model-repository/
+    env:
+    - name: AWS_ACCESS_KEY_ID
+      value: ${S3_ACCESS_KEY}
+    - name: AWS_SECRET_ACCESS_KEY
+      value: ${S3_SECRET_KEY}
+    - name: AWS_REGION
+      value: us-east-1
+    - name: S3_ENDPOINT
+      value: ${S3_ENDPOINT_URL}
+    - name: S3_USE_HTTPS
+      value: "0"
   ingress:
     enabled: false
     path: /triton(/|$)(.*)
     # Used to create an Ingress record.
     hosts:
-      - hypha.${HOSTNAME}
+    - hypha.${HOSTNAME}
     annotations:
       # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
@@ -177,21 +177,29 @@ tritoninferenceserver-hypha:
       # certmanager.k8s.io/acme-http01-edit-in-place: "true"
     labels: {}
     tls:
-      - secretName: tls-secret
-        hosts:
-          - hypha.${HOSTNAME}
-
-  # resources:
+    - secretName: tls-secret
+      hosts:
+      - hypha.${HOSTNAME}
+  cache:
+    ephemeral:
+      volumeClaimTemplate:
+        metadata:
+          creationTimestamp: null
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 128Gi
+          volumeMode: Filesystem
   resources:
     limits:
       cpu: "8"
-      ephemeral-storage: 256Gi
-      memory: 96Gi
+      memory: 48Gi
       nvidia.com/gpu: "1"
     requests:
       cpu: "8"
-      ephemeral-storage: 128Gi
-      memory: 96Gi
+      memory: 48Gi
       nvidia.com/gpu: "1"
   service:
     type: ClusterIP
@@ -205,3 +213,5 @@ tritoninferenceserver-hypha:
 
   nodeSelector:
     cloud.google.com/gke-accelerator: "nvidia-tesla-t4"
+    cloud.google.com/gke-accelerator-count: "1"
+    cloud.google.com/gke-spot: "true"
