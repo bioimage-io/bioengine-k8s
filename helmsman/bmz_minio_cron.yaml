@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+# namespace: hypha
+kind: CronJob
+metadata:
+  name: s3-to-minio
+  namespace: hypha
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: mc
+            image: minio/mc
+            command: ["/bin/sh"]
+            args:
+            - "-c"
+            - |
+              mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk &&
+              mc alias set minio http://minio:9000 $(ROOTUSER) $(ROOTPASSWORD)
+              echo "Downloading" &&
+              mc mb minio/model-repository || true &&
+              mc mirror --overwrite ebi-s3-endpoint/model-repository/ minio/model-repository
+            env:
+            - name: ROOTPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: rootPassword
+            - name: ROOTUSER
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: rootUser
+          # volumes:
+          # - name: mc-config
+          #   configMap:
+          #     name: mc-config
+
