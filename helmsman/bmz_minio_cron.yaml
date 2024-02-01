@@ -12,6 +12,9 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
+          # - name: reboot-policy-container
+          #   image: bitnami/kubectl # A container image with kubectl
+          #   command: ["kubectl", "rollout", "restart", "deployment/tritoninferenceserver"]
           - name: mc
             image: minio/mc
             command: ["/bin/sh"]
