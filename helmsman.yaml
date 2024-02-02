@@ -49,12 +49,9 @@ appsTemplates:
       # s3_secret_key: $$MINIO_ROOTPASSWORD
       # minio.rootUser: $$MINIO_ROOTUSER
       # minio.rootPassword: $$MINIO_ROOTPASSWORD
-    valuesFiles:
-    - helmsman/hypha.yaml
-    postInstall: helmsman/bmz_minio_cron.yaml
 
 apps:
-  hypha-prod:
+  hypha-production:
     !!merge <<: *hypha
     name: "hypha"
     group: "prod"
@@ -63,7 +60,7 @@ apps:
     valuesFiles:
     - helmsman/hypha.yaml
 
-  hypha-dev:
+  hypha-staging:
     !!merge <<: *hypha
     name: "hypha"
     enabled: false
@@ -72,16 +69,7 @@ apps:
     namespace: "hypha-dev"
     valuesFiles:
     - helmsman/hypha.yaml
-    - helmsman/dev.hypha.yaml
-
-  # triton-hypha:
-  #   name: "triton-hypha"
-  #   chart: "./triton-hypha"
-  #   enabled: true
-  #   version: "0.1.0"
-  #   wait: true
-  #   group: "production"
-  #   namespace: "hypha"
+    - helmsman/staging.hypha.yaml
 
   cert-manager:
     name: "cert-manager"
@@ -137,40 +125,8 @@ apps:
     name: "ingress-nginx"
     namespace: "ingress-nginx"
     chart: "ingress-nginx/ingress-nginx"
-    group: "prod"
-    priority: -10
-    enabled: true
-    version: "4.8.0"
+    group: "production"
+    enabled: false
+    version: "3.35.0"
     valuesFiles:
     - helmsman/ingress-nginx.yaml
-
-  # minio:
-  #   name: "minio"
-  #   namespace: "minio"
-  #   chart: "minio/minio"
-  #   group: "production"
-  #   # wait: true
-  #   enabled: false
-  #   timeout: 4800
-  #   version: "3.3.0"
-  #   valuesFiles:
-  #       - minio/values.yaml
-  #   set:
-  #     rootUser: rootuser
-  #     rootPassword: rootpass123
-
-  kuberay-operator:
-    name: "kuberay-operator"
-    namespace: "hypha"
-    chart: "kuberay/kuberay-operator"
-    enabled: true
-    version: "0.5.0"
-    group: "prod"
-
-  kuberay-apiserver:
-    name: "kuberay-apiserver"
-    namespace: "hypha"
-    chart: "kuberay/kuberay-apiserver"
-    enabled: true
-    version: "0.5.0"
-    group: "prod"
