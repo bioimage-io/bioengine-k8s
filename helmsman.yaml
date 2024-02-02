@@ -35,9 +35,9 @@ settings:
 
 appsTemplates:
   hypha: &hypha
-    name: "hypha"
-    chart: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
-    enabled: true
+    # name: "hypha"
+    chart: "hypha/hypha"
+    # enabled: true
     version: "0.16.9"
     wait: false
     timeout: 600
@@ -60,16 +60,15 @@ apps:
     valuesFiles:
     - helmsman/hypha.yaml
 
-  hypha-staging:
+  hypha-dev:
     !!merge <<: *hypha
     name: "hypha"
-    enabled: false
-    priority: -100
+    enabled: true
     group: "dev"
     namespace: "hypha-dev"
     valuesFiles:
     - helmsman/hypha.yaml
-    - helmsman/staging.hypha.yaml
+    - helmsman/dev.hypha.yaml
 
   cert-manager:
     name: "cert-manager"

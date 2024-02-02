@@ -16,10 +16,10 @@ Full production deployment using helmsman (includes ingress, gpu-operator, nvidi
     helmsman --debug -f helmsman.yaml --dry-run
     helmsman --debug -f helmsman.yaml --apply
 
-Staging only deployment:
+Dev only deployment:
 
-    helmsman --debug --group staging -f helm-chart/helmsman.yaml --dry-run
+    helmsman --debug --group dev -f helm-chart/helmsman.yaml --dry-run
 
-	helmsman --debug --group staging -f helm-chart/helmsman.yaml --apply
+	helmsman --debug --group dev -f helm-chart/helmsman.yaml --apply
 
 

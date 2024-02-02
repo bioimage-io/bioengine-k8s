@@ -1,4 +1,4 @@
-name: staging-deploy
+name: dev-deploy
 on:
   push:
     branches:
@@ -15,10 +15,10 @@ env:
   KUBECONFIG: .kube/config
 
 jobs:
-  staging-deploy:
+  dev-deploy:
     needs: test-deploy
     runs-on: [self-hosted,denbi]
     steps:
     - uses: amun-ai/hyhpha-k8s/.github/workflows/called-workflow.yml@main
-    - name: "make staging.dry"
-      run: helmsman --debug --group staging -f helmsman.yaml --subst-env-values
+    - name: "make dev.dry"
+      run: helmsman --debug --group dev -f helmsman.yaml --subst-env-values
