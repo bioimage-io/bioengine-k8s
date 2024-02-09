@@ -3,7 +3,6 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: s3-to-minio
-  namespace: hypha
 spec:
   schedule: "0 0 * * *"
   jobTemplate:
@@ -31,12 +30,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: minio
-                  key: rootPassword
+                  key: root-password
             - name: ROOTUSER
               valueFrom:
                 secretKeyRef:
                   name: minio
-                  key: rootUser
+                  key: root-user
           # volumes:
           # - name: mc-config
           #   configMap:

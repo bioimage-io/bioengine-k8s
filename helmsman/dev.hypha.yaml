@@ -11,18 +11,16 @@ ingress:
   - secretName: tls-secret
     hosts:
     - dev.hypha.${HOSTNAME}
-ingress-nginx:
+# ingress-nginx:
 
-docker-registry:
+# docker-registry:
+
+tritoninfereceserver-hypha:
+  fullnameOverride: tritoninferenceserver-dev
 
 minio:
-  ingress:
-    annotations:
-      # kubernetes.io/ingress.class: nginx
-      kubernetes.io/tls-acme: "true"
-      cert-manager.k8s.io/acme-challenge-type: http01
-      cert-manager.io/cluster-issuer: letsencrypt
-      certmanager.k8s.io/acme-http01-edit-in-place: "true"
+  serviceAccount:
+    name: "minio-sa-dev"
     hosts:
     - dev.hs3.${HOSTNAME}
     tls:
@@ -31,11 +29,7 @@ minio:
       - dev.hs3.${HOSTNAME}
   consoleIngress:
     annotations:
-      # kubernetes.io/ingress.class: nginx
-      kubernetes.io/tls-acme: "true"
-      cert-manager.k8s.io/acme-challenge-type: http01
       cert-manager.io/cluster-issuer: letsencrypt-dev
-      certmanager.k8s.io/acme-http01-edit-in-place: "true"
     hosts:
     - dev.hs3c.${HOSTNAME}
     tls:
@@ -43,12 +37,3 @@ minio:
       hosts:
       - dev.hs3c.${HOSTNAME}
 
-tritoninfereceserver-hypha:
-  image:
-    hosts:
-    - dev.hypha.${HOSTNAME}
-    labels: {}
-    tls:
-    - secretName: tls-secret
-      hosts:
-      - dev.hypha.${HOSTNAME}

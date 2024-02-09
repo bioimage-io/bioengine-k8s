@@ -10,12 +10,12 @@ metadata:
   description: "Desired State File for ImJoy App Engine K8s deploy"
 
 namespaces:
-  hypha:
-  hypha-dev:
-  cert-manager:
-  nvidia-gpu-operator:
-  ingress-nginx:
-  minio:
+  bioengine:
+  bioengine-dev:
+  # hypha-dev:
+  # cert-manager:
+  # nvidia-gpu-operator:
+  # ingress-nginx:
 
 helmRepos:
   jetstack: "https://charts.jetstack.io"
@@ -36,36 +36,32 @@ settings:
 appsTemplates:
   hypha: &hypha
     # name: "hypha"
-    chart: "hypha/hypha"
+    # chart: "hypha/hypha"
+    chart: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
     # enabled: true
-    version: "0.16.9"
+    version: "0.16.16"
     wait: false
     timeout: 600
-    # namespace: "hypha"
-    # Set secrets here
-    set:
-      jwt_secret: $$JWT_SECRET
-      # s3_access_key: $$MINIO_ROOTUSER
-      # s3_secret_key: $$MINIO_ROOTPASSWORD
-      # minio.rootUser: $$MINIO_ROOTUSER
-      # minio.rootPassword: $$MINIO_ROOTPASSWORD
+    hooks:
+      postInstall: "helmsman/bmz_minio_cron.yaml"
+      postUpgrade: "helmsman/bmz_minio_cron.yaml"
 
 apps:
-  hypha-production:
+  hypha-prod:
     !!merge <<: *hypha
     name: "hypha"
     group: "prod"
     enabled: true
-    namespace: "hypha"
+    namespace: "bioengine"
     valuesFiles:
     - helmsman/hypha.yaml
 
   hypha-dev:
     !!merge <<: *hypha
-    name: "hypha"
+    name: "hypha-dev"
     enabled: true
     group: "dev"
-    namespace: "hypha-dev"
+    namespace: "bioengine-dev"
     valuesFiles:
     - helmsman/hypha.yaml
     - helmsman/dev.hypha.yaml
@@ -73,13 +69,13 @@ apps:
   cert-manager:
     name: "cert-manager"
     chart: "jetstack/cert-manager"
-    enabled: true
-    priority: -10
+    enabled: false
+    priority: 0
     # timeout: 120
     version: "v1.11.2"
     wait: true
     group: "prod"
-    namespace: "cert-manager"
+    namespace: "bioengine"
     set:
       installCRDs: true
       ingressShim.defaultIssuerKind: "ClusterIssuer"
@@ -94,7 +90,7 @@ apps:
   #   name: "docker-registry"
   #   namespace: "docker-registry"
   #   chart: "twuni/docker-registry"
-  #   group: "production"
+  #   group: "prod"
   #   enabled: true
   #   version: "1.11.0"
   #   set:
@@ -106,7 +102,7 @@ apps:
 
   nvidia-device-plugin:
     name: "nvidia-device-plugin"
-    namespace: "nvidia-gpu-operator"
+    namespace: "bioengine"
     chart: "nvdp/nvidia-device-plugin"
     enabled: false
     version: "0.10.0"
@@ -114,7 +110,7 @@ apps:
 
   nvidia-gpu-operator:
     name: "nvidia-gpu-operator"
-    namespace: "nvidia-gpu-operator"
+    namespace: "bioengine"
     chart: "nvidia/gpu-operator"
     enabled: false
     version: "v1.10.1"
@@ -122,9 +118,9 @@ apps:
 
   ingress-nginx:
     name: "ingress-nginx"
-    namespace: "ingress-nginx"
+    namespace: "bioengine"
     chart: "ingress-nginx/ingress-nginx"
-    group: "production"
+    group: "prod"
     enabled: false
     version: "3.35.0"
     valuesFiles:
