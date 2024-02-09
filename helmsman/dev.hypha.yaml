@@ -3,6 +3,7 @@ s3ConsoleHostName: https://dev.hs3c.${HOSTNAME}
 s3_endpoint_url_public: https://dev.hs3.${HOSTNAME}
 
 cert-manager:
+fullnameOverride: hypha-dev
 
 ingress:
   hosts:
@@ -11,29 +12,36 @@ ingress:
   - secretName: tls-secret
     hosts:
     - dev.hypha.${HOSTNAME}
-# ingress-nginx:
-
-# docker-registry:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dev
 
 tritoninfereceserver-hypha:
   fullnameOverride: tritoninferenceserver-dev
 
+tritoninferenceserver-hypha:
+  image:
+    modelRepository: s3://minio:9000/model-repository
+
+redis:
+  fullnameOverride: redis-dev
+
 minio:
   serviceAccount:
     name: "minio-sa-dev"
-    hosts:
-    - dev.hs3.${HOSTNAME}
-    tls:
-    - secretName: minio-hs3-dev
-      hosts:
-      - dev.hs3.${HOSTNAME}
-  consoleIngress:
+  ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-dev
-    hosts:
-    - dev.hs3c.${HOSTNAME}
-    tls:
-    - secretName: minio-hs3c-dev
-      hosts:
-      - dev.hs3c.${HOSTNAME}
+    hostname: dev.s3c.${HOSTNAME}
+    extraTls:
+    - hosts:
+      - dev.s3c.${HOSTNAME}
+      secretName: minio-s3c-dev
 
+  apiIngress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-dev
+    hostname: dev.s3.${HOSTNAME}
+    extraTls:
+    - hosts:
+      - dev.s3.${HOSTNAME}
+      secretName: minio-s3-dev

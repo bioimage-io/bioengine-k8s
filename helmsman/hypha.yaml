@@ -14,9 +14,9 @@ jwt_secret: "${JWT_SECRET}"
 # securityContext:
 #   runAsNonRoot: true
 #   enabled: true
-#   runAsUser: 1000 # Run as non-root user
-#   runAsGroup: 1000 # Run with the same group
-#   fsGroup: 1000 # File system group should also be non-root
+#   runAsUser: 1001 # Run as non-root user
+#   runAsGroup: 1001 # Run with the same group
+#   fsGroup: 1001 # File system group should also be non-root
 #   fsGroupChangePolicy: "OnRootMismatch" # Set the fsGroup change policy
 #   capabilities:
 #     drop:
@@ -58,35 +58,39 @@ redis:
   enabled: true
   global:
     redis:
-      password: "admin"
+      password: ${REDIS_PASSWORD}
 minio:
   fullnameOverride: "minio"
   enabled: true
   auth:
     rootUser: "${S3_ACCESS_KEY}"
     rootPassword: "${S3_SECRET_KEY}"
-
   apiIngress:
     enabled: true
     annotations:
       kubernetes.io/tls-acme: "true"
+      cert-manager.k8s.io/acme-challenge-type: http01
       cert-manager.io/cluster-issuer: letsencrypt
       certmanager.k8s.io/acme-http01-edit-in-place: "true"
-    path: /
-    hosts:
-    - s3.${HOSTNAME}
-
-  consoleIngress:
+    hostname: s3c.${HOSTNAME}
+    tls: true
+    extraTls:
+    - hosts:
+      - s3c.${HOSTNAME}
+      secretName: minio-s3c
+  ingress:
     enabled: true
     annotations:
       kubernetes.io/tls-acme: "true"
+      cert-manager.k8s.io/acme-challenge-type: http01
       cert-manager.io/cluster-issuer: letsencrypt
-    hosts:
-    - s3c.${HOSTNAME}
-    tls:
-    - secretName: s3c-minio
-      hosts:
-      - s3c.${HOSTNAME}
+      certmanager.k8s.io/acme-http01-edit-in-place: "true"
+    hostname: s3.${HOSTNAME}
+    tls: true
+    extraTls:
+    - hosts:
+      - s3.${HOSTNAME}
+      secretName: minio-s3
   persistence:
     size: 64Gi
 
@@ -94,12 +98,34 @@ tritoninferenceserver-hypha:
   enabled: true
   fullnameOverride: "tritoninferenceserver"
   replicaCount: 2
+  initContainers:
+  - name: bmz
+    image: minio/mc
+    command: ["/bin/sh"]
+    args:
+    - "-c"
+    - |
+      mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk &&
+      mc alias set minio http://minio:9000 $(ROOTUSER) $(ROOTPASSWORD)
+      echo "Downloading" &&
+      mc mb minio/model-repository || true &&
+      mc mirror --overwrite ebi-s3-endpoint/model-repository/ minio/model-repository
+    env:
+    - name: MC_CONFIG_DIR # Specify a custom config directory for mc
+      value: "/tmp/.mc"
+    - name: ROOTPASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio
+          key: root-password
+    - name: ROOTUSER
+      valueFrom:
+        secretKeyRef:
+          name: minio
+          key: root-user
   livenessProbe:
-    initialDelaySeconds: 60
+    initialDelaySeconds: 10
     periodSeconds: 60
-    timeoutSeconds: 5
-    successThreshold: 1
-    # Try for 30 mins before giving up, bmz is slow to start
     failureThreshold: 30
   volumes:
   - emptyDir:
@@ -116,23 +142,8 @@ tritoninferenceserver-hypha:
           storageClassName: standard-rwo
           volumeMode: Filesystem
     name: triton-cache
-  # volumeMounts:
-  # - mountPath: /dev/shm
-  #   name: dshm
-  # - mountPath: /opt/tritonserver/caches
-  #   name: triton-cache
-  #   subPath: caches
-  # - mountPath: /model-repository
-  #   name: triton-cache
-  #   subPath: model-repository
-  # - mountPath: /model-snapshots
-  #   name: triton-cache
-  #   subPath: model-snapshots
-  # - mountPath: /tmp
-  #   name: triton-cache
   image:
     # imageName: ghcr.io/imjoy-team/triton:22.04-py3
-    pullPolicy: IfNotPresent
     modelRepository: s3://minio:9000/model-repository
     modelStore: /model-repository
     modelSnapshotsPath: /model-snapshots
