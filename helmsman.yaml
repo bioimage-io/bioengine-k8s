@@ -13,9 +13,9 @@ namespaces:
   bioengine:
   bioengine-dev:
   # hypha-dev:
-  # cert-manager:
-  # nvidia-gpu-operator:
-  # ingress-nginx:
+  cert-manager:
+  nvidia-gpu-operator:
+  ingress-nginx:
 
 helmRepos:
   jetstack: "https://charts.jetstack.io"
@@ -75,7 +75,7 @@ apps:
     version: "v1.11.2"
     wait: true
     group: "prod"
-    namespace: "bioengine"
+    namespace: "cert-manager"
     set:
       installCRDs: true
       ingressShim.defaultIssuerKind: "ClusterIssuer"
@@ -118,10 +118,11 @@ apps:
 
   ingress-nginx:
     name: "ingress-nginx"
-    namespace: "bioengine"
+    namespace: "ingress-nginx"
     chart: "ingress-nginx/ingress-nginx"
     group: "prod"
-    enabled: false
-    version: "3.35.0"
+    enabled: true
+    version: "4.9.1"
+    timeout: 360
     valuesFiles:
     - helmsman/ingress-nginx.yaml
