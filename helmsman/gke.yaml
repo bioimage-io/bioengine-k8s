@@ -1,0 +1,10 @@
+
+apps:
+  hypha-prod:
+    valuesFiles:
+    - hypha.yaml
+    - gke.hypha.yaml
+  hypha-dev:
+    valuesFiles:
+    - hypha.yaml
+    - dev.hypha.yaml
