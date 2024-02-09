@@ -43,8 +43,8 @@ appsTemplates:
     wait: false
     timeout: 600
     hooks:
-      postInstall: "helmsman/bmz_minio_cron.yaml"
-      postUpgrade: "helmsman/bmz_minio_cron.yaml"
+      postInstall: "helmsman/triton_reboot.yaml"
+      postUpgrade: "helmsman/triton_reboot.yaml"
 
 apps:
   hypha-prod:
