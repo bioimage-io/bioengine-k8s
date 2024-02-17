@@ -10,6 +10,7 @@ metadata:
   description: "Desired State File for ImJoy App Engine K8s deploy"
 
 namespaces:
+  # descheduler:
   bioengine:
   bioengine-dev:
   # hypha-dev:
@@ -28,7 +29,8 @@ helmRepos:
   nvdp: "https://nvidia.github.io/k8s-device-plugin"
   nvidia: "https://nvidia.github.io/gpu-operator"
   minio: "https://charts.min.io/"
-  kuberay: "https://ray-project.github.io/kuberay-helm/"
+  # descheduler: "https://kubernetes-sigs.github.io/descheduler"
+
   # imjoy: https://github.com/imjoy-team/imjoy-app-engine/charts
 
 settings:
@@ -39,12 +41,12 @@ appsTemplates:
     # chart: "hypha/hypha"
     chart: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
     # enabled: true
-    version: "0.16.16"
+    version: "0.17.0"
     wait: false
     timeout: 600
     hooks:
-      postInstall: "helmsman/triton_reboot.yaml"
-      postUpgrade: "helmsman/triton_reboot.yaml"
+      postInstall: "helmsman/triton_reboot_cron.yaml"
+      postUpgrade: "helmsman/triton_reboot_cron.yaml"
 
 apps:
   hypha-prod:
@@ -69,7 +71,7 @@ apps:
   cert-manager:
     name: "cert-manager"
     chart: "jetstack/cert-manager"
-    enabled: false
+    enabled: true
     priority: 0
     # timeout: 120
     version: "v1.11.2"
@@ -126,3 +128,14 @@ apps:
     timeout: 360
     valuesFiles:
     - helmsman/ingress-nginx.yaml
+
+  # descheduler:
+  #   name: "descheduler"
+  #   namespace: "bioengine"
+  #   chart: "descheduler/descheduler"
+  #   group: "prod"
+  #   enabled: true
+  #   version: 0.29.0
+  #   set:
+  #     rbac.create: true
+  #     serviceAccount.create: true
