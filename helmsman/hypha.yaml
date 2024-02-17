@@ -30,8 +30,6 @@ image:
   pullPolicy: IfNotPresent
   tag: "0.15.36"
 
-triton_url: "http://tritoninferenceserver"
-
 service:
   type: ClusterIP
   port: 80
@@ -94,7 +92,7 @@ minio:
   persistence:
     size: 64Gi
 
-tritoninferenceserver-hypha:
+tritoninferenceserver:
   enabled: true
   fullnameOverride: "tritoninferenceserver"
   replicaCount: 2
@@ -123,10 +121,10 @@ tritoninferenceserver-hypha:
         secretKeyRef:
           name: minio
           key: root-user
-  livenessProbe:
+  startupProbe:
     initialDelaySeconds: 10
     periodSeconds: 60
-    failureThreshold: 30
+    failureThreshold: 60
   volumes:
   - emptyDir:
       medium: Memory
@@ -138,12 +136,12 @@ tritoninferenceserver-hypha:
           - ReadWriteOnce
           resources:
             requests:
-              storage: 64Gi
+              storage: 128Gi
           storageClassName: standard-rwo
           volumeMode: Filesystem
     name: triton-cache
   image:
-    # imageName: ghcr.io/imjoy-team/triton:22.04-py3
+    # imageName: nvcr.io/nvidia/tritonserver:24.01-py3
     modelRepository: s3://minio:9000/model-repository
     modelStore: /model-repository
     modelSnapshotsPath: /model-snapshots
@@ -163,7 +161,7 @@ tritoninferenceserver-hypha:
   resources:
     requests:
       memory: "32Gi"
-      cpu: "8"
+      cpu: "16"
     limits:
       memory: "32Gi"
-      cpu: "16"
+      cpu: "32"
