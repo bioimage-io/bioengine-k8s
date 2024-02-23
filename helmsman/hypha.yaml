@@ -141,7 +141,7 @@ tritoninferenceserver:
           volumeMode: Filesystem
     name: triton-cache
   image:
-    imageName: nvcr.io/nvidia/tritonserver:24.01-py3
+    imageName: nvcr.io/nvidia/tritonserver:22.04-py3
     modelRepository: s3://minio:9000/model-repository
     modelStore: /model-repository
     modelSnapshotsPath: /model-snapshots
