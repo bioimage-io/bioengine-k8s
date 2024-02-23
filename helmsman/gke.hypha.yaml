@@ -1,4 +1,4 @@
-tritoninferenceserver-hypha:
+tritoninferenceserver:
   resources:
     requests:
       nvidia.com/gpu: 1
