@@ -1,0 +1,28 @@
+tritoninferenceserver:
+  resources:
+    requests:
+      nvidia.com/gpu: 1
+    limits:
+      nvidia.com/gpu: 1
+  nodeSelector:
+    cloud.google.com/gke-accelerator: nvidia-tesla-t4
+    cloud.google.com/gke-accelerator-count: "1"
+    cloud.google.com/gke-spot: "true"
+  volumes:
+  - emptyDir:
+      medium: Memory
+    name: dshm
+  - ephemeral:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 64Gi
+          storageClassName: standard-rwo
+          volumeMode: Filesystem
+    name: triton-cache
+hypha:
+  nodeSelector:
+    cloud.google.com/gke-spot: "true"

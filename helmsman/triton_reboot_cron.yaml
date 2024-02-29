@@ -1,0 +1,41 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: triton-deployment-manager
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "update", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: triton-deployment-manager-binding
+subjects:
+- kind: ServiceAccount
+  name: default # If you continue to use the default service account, consider creating a dedicated one for better security practices.
+roleRef:
+  kind: Role
+  name: triton-deployment-manager
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: triton-reboot
+spec:
+  schedule: "0 0 * * *" # This cron schedule runs at 00:00 UTC every day
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: kubectl-container
+            image: bitnami/kubectl
+            command:
+            - 'kubectl'
+            - 'rollout'
+            - 'restart'
+            - 'deployment/tritoninferenceserver'
+          restartPolicy: OnFailure

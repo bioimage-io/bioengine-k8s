@@ -1,0 +1,9 @@
+apps:
+  hypha-prod:
+    valuesFiles:
+    - hypha.yaml
+    - egi.hypha.yaml
+  hypha-dev:
+    valuesFiles:
+    - hypha.yaml
+    - dev.hypha.yaml

@@ -10,13 +10,18 @@ metadata:
   description: "Desired State File for ImJoy App Engine K8s deploy"
 
 namespaces:
-  hypha:
-  hypha-dev:
+  # descheduler:
+  bioengine:
+  bioengine-dev:
+  # hypha-dev:
   cert-manager:
   nvidia-gpu-operator:
   ingress-nginx:
 
 helmRepos:
+  kuberay: "https://ray-project.github.io/kuberay-helm/"
+  dask: "https://helm.dask.org/"
+  jupyterhub: "https://jupyterhub.github.io/helm-chart/"
   jetstack: "https://charts.jetstack.io"
   nginx-stable: "https://helm.nginx.com/stable"
   ingress-nginx: "https://kubernetes.github.io/ingress-nginx"
@@ -27,30 +32,24 @@ helmRepos:
   nvdp: "https://nvidia.github.io/k8s-device-plugin"
   nvidia: "https://nvidia.github.io/gpu-operator"
   minio: "https://charts.min.io/"
-  kuberay: "https://ray-project.github.io/kuberay-helm/"
+  # descheduler: "https://kubernetes-sigs.github.io/descheduler"
+
   # imjoy: https://github.com/imjoy-team/imjoy-app-engine/charts
 
 settings:
 
 appsTemplates:
   hypha: &hypha
-    name: "hypha"
+    # name: "hypha"
+    # chart: "hypha/hypha"
     chart: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
-    enabled: true
-    version: "0.16.9"
+    # enabled: true
+    version: "0.17.1"
     wait: false
     timeout: 600
-    # namespace: "hypha"
-    # Set secrets here
-    set:
-      jwt_secret: $$JWT_SECRET
-      # s3_access_key: $$MINIO_ROOTUSER
-      # s3_secret_key: $$MINIO_ROOTPASSWORD
-      # minio.rootUser: $$MINIO_ROOTUSER
-      # minio.rootPassword: $$MINIO_ROOTPASSWORD
-    valuesFiles:
-    - helmsman/hypha.yaml
-    postInstall: helmsman/bmz_minio_cron.yaml
+    hooks:
+      postInstall: "helmsman/triton_reboot_cron.yaml"
+      postUpgrade: "helmsman/triton_reboot_cron.yaml"
 
 apps:
   hypha-prod:
@@ -58,35 +57,40 @@ apps:
     name: "hypha"
     group: "prod"
     enabled: true
-    namespace: "hypha"
+    namespace: "bioengine"
     valuesFiles:
     - helmsman/hypha.yaml
 
   hypha-dev:
     !!merge <<: *hypha
-    name: "hypha"
-    enabled: false
-    priority: -100
+    name: "hypha-dev"
+    enabled: true
     group: "dev"
-    namespace: "hypha-dev"
+    namespace: "bioengine-dev"
     valuesFiles:
     - helmsman/hypha.yaml
     - helmsman/dev.hypha.yaml
 
-  # triton-hypha:
-  #   name: "triton-hypha"
-  #   chart: "./triton-hypha"
-  #   enabled: true
-  #   version: "0.1.0"
-  #   wait: true
-  #   group: "production"
-  #   namespace: "hypha"
+  daskhub:
+    chart: "dask/daskhub"
+    version: "2024.1.0"
+    group: "prod"
+    namespace: "bioengine"
+    enabled: true
+    wait: true
+    priority: -10
+    timeout: 600
+    set:
+      proxy.secretToken: "$JWT_SECRET"
+    valuesFiles:
+    - "helmsman/jupyterhub.yaml"
+
 
   cert-manager:
     name: "cert-manager"
     chart: "jetstack/cert-manager"
     enabled: true
-    priority: -10
+    priority: 0
     # timeout: 120
     version: "v1.11.2"
     wait: true
@@ -106,7 +110,7 @@ apps:
   #   name: "docker-registry"
   #   namespace: "docker-registry"
   #   chart: "twuni/docker-registry"
-  #   group: "production"
+  #   group: "prod"
   #   enabled: true
   #   version: "1.11.0"
   #   set:
@@ -118,7 +122,7 @@ apps:
 
   nvidia-device-plugin:
     name: "nvidia-device-plugin"
-    namespace: "nvidia-gpu-operator"
+    namespace: "bioengine"
     chart: "nvdp/nvidia-device-plugin"
     enabled: false
     version: "0.10.0"
@@ -126,7 +130,7 @@ apps:
 
   nvidia-gpu-operator:
     name: "nvidia-gpu-operator"
-    namespace: "nvidia-gpu-operator"
+    namespace: "bioengine"
     chart: "nvidia/gpu-operator"
     enabled: false
     version: "v1.10.1"
@@ -137,39 +141,35 @@ apps:
     namespace: "ingress-nginx"
     chart: "ingress-nginx/ingress-nginx"
     group: "prod"
-    priority: -10
     enabled: true
-    version: "4.8.0"
+    version: "4.9.1"
+    timeout: 360
     valuesFiles:
     - helmsman/ingress-nginx.yaml
 
-  # minio:
-  #   name: "minio"
-  #   namespace: "minio"
-  #   chart: "minio/minio"
-  #   group: "production"
-  #   # wait: true
-  #   enabled: false
-  #   timeout: 4800
-  #   version: "3.3.0"
-  #   valuesFiles:
-  #       - minio/values.yaml
+  # descheduler:
+  #   name: "descheduler"
+  #   namespace: "bioengine"
+  #   chart: "descheduler/descheduler"
+  #   group: "prod"
+  #   enabled: true
+  #   version: 0.29.0
   #   set:
-  #     rootUser: rootuser
-  #     rootPassword: rootpass123
+  #     rbac.create: true
+  #     serviceAccount.create: true
 
   kuberay-operator:
     name: "kuberay-operator"
-    namespace: "hypha"
+    namespace: "bioengine"
     chart: "kuberay/kuberay-operator"
-    enabled: true
+    enabled: false
     version: "0.5.0"
     group: "prod"
 
   kuberay-apiserver:
     name: "kuberay-apiserver"
-    namespace: "hypha"
+    namespace: "bioengine"
     chart: "kuberay/kuberay-apiserver"
-    enabled: true
+    enabled: false
     version: "0.5.0"
     group: "prod"

@@ -1,63 +1,47 @@
 imjoyHostName: https://dev.hypha.${HOSTNAME}
-s3ConsoleHostName: https://dev.s3c.${HOSTNAME}
-s3_endpoint_url_public: https://dev.s3.${HOSTNAME}
+s3ConsoleHostName: https://dev.hs3c.${HOSTNAME}
+s3_endpoint_url_public: https://dev.hs3.${HOSTNAME}
 
 cert-manager:
+fullnameOverride: hypha-dev
 
 ingress:
   hosts:
-    - dev.hypha.${HOSTNAME}
+  - dev.hypha.${HOSTNAME}
   tls:
-    - secretName: tls-secret
-      hosts:
-        - dev.hypha.${HOSTNAME}
-ingress-nginx:
-
-docker-registry:
-
-minio:
-  fullnameOverride: "minio-dev"
-  ingress:
-    annotations:
-      # kubernetes.io/ingress.class: nginx
-      kubernetes.io/tls-acme: "true"
-      cert-manager.k8s.io/acme-challenge-type: http01
-      cert-manager.io/cluster-issuer: letsencrypt
-      certmanager.k8s.io/acme-http01-edit-in-place: "true"
+  - secretName: tls-secret
     hosts:
-      - dev.s3.${HOSTNAME}
-    tls:
-      - secretName: minio-s3-dev
-        hosts:
-          - dev.s3.${HOSTNAME}
-  consoleIngress:
-    annotations:
-      # kubernetes.io/ingress.class: nginx
-      kubernetes.io/tls-acme: "true"
-      cert-manager.k8s.io/acme-challenge-type: http01
-      cert-manager.io/cluster-issuer: letsencrypt
-      certmanager.k8s.io/acme-http01-edit-in-place: "true"
-    hosts:
-      - dev.s3c.${HOSTNAME}
-
-    tls:
-      - secretName: minio-s3c-dev
-        hosts:
-          - dev.s3c.${HOSTNAME}
+    - dev.hypha.${HOSTNAME}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dev
 
 tritoninfereceserver-hypha:
+  fullnameOverride: tritoninferenceserver-dev
+
+tritoninferenceserver-hypha:
   image:
-    hosts:
-      - dev.hypha.${HOSTNAME}
+    modelRepository: s3://minio:9000/model-repository
 
-    labels: {}
-    tls:
-      - secretName: tls-secret
-        hosts:
-          - dev.hypha.${HOSTNAME}
+redis:
+  fullnameOverride: redis-dev
 
-  resources:
-    limits:
-      nvidia.com/gpu: "0"
-    requests:
-      nvidia.com/gpu: "0"
+minio:
+  serviceAccount:
+    name: "minio-sa-dev"
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-dev
+    hostname: dev.s3c.${HOSTNAME}
+    extraTls:
+    - hosts:
+      - dev.s3c.${HOSTNAME}
+      secretName: minio-s3c-dev
+
+  apiIngress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-dev
+    hostname: dev.s3.${HOSTNAME}
+    extraTls:
+    - hosts:
+      - dev.s3.${HOSTNAME}
+      secretName: minio-s3-dev

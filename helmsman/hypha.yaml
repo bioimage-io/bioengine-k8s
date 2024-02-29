@@ -2,216 +2,172 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 replicaCount: 1
-acmeEmail: "oeway007@gmail.com"
-container: imjoy/imjoy-app-engine
-certSecretName: imjoy-app-engine-tls
-imjoyHostName: https://hypha.${HOSTNAME}
-s3ConsoleHostName: https://s3c.${HOSTNAME}
-s3_endpoint_url_public: https://s3.${HOSTNAME}
-# publicEndpointUrl: s3.imjoy.io
+acmeEmail: "${EMAIL}"
+certSecretName: hypha-tls
+hyphaHostName: https://hypha.${HOSTNAME}
+s3ConsoleHostName: https://hs3c.${HOSTNAME}
+s3_endpoint_url_public: https://hs3.${HOSTNAME}
 auth0_audience: https://imjoy.eu.auth0.com/api/v2/
 auth0_domain: imjoy.eu.auth0.com
-jwt_secret: 352esl345IEo3kjsw3fsdf39sdfl3K23KJE#D*#4d
+jwt_secret: "${JWT_SECRET}"
 
-imagePullPolicy: Always
+# securityContext:
+#   runAsNonRoot: true
+#   enabled: true
+#   runAsUser: 1001 # Run as non-root user
+#   runAsGroup: 1001 # Run with the same group
+#   fsGroup: 1001 # File system group should also be non-root
+#   fsGroupChangePolicy: "OnRootMismatch" # Set the fsGroup change policy
+#   capabilities:
+#     drop:
+#     - ALL # Drop all capabilities
+#   allowPrivilegeEscalation: false # Do not allow privilege escalation
+#   seccompProfile:
+#     type: RuntimeDefault
+
 image:
-  # repository: ghcr.io/ctr26/hypha
   repository: ghcr.io/amun-ai/hypha
-  tag: 0.15.35
-# s3_access_key: rootuser
-# s3_secret_key: rootpass123
-triton_url: "tritoninferenceserver:8000"
-# port: 9520
-# productionMode: false # using `letsencrypt-prod` if set to true
+  pullPolicy: IfNotPresent
+  tag: "0.15.36"
+
 service:
-  name: hypha
-  type: NodePort
-  # sessionAffinity: None
-  # sessionAffinityConfig: {}
-  # clusterIP:
-  port: 9520
-  # nodePort:
-  # loadBalancerIP:
-  # loadBalancerSourceRanges:
+  type: ClusterIP
+  port: 80
   annotations: {}
-  # foo.io/bar: "true"
-
-cert-manager:
-  enabled: false
-
-redis:
-  enabled: true
 
 ingress:
   enabled: true
   className: nginx
   path: /
-  # Used to create an Ingress record.
   hosts:
   - hypha.${HOSTNAME}
   annotations:
-    # kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
     cert-manager.k8s.io/acme-challenge-type: http01
     cert-manager.io/cluster-issuer: letsencrypt
     certmanager.k8s.io/acme-http01-edit-in-place: "true"
-  labels: {}
   tls:
   - secretName: tls-secret
     hosts:
     - hypha.${HOSTNAME}
 
-# Best not to enforce strict ingress
-ingress-nginx:
-  enabled: false
-#   rbac:
-#     create: true
-#   defaultBackend:
-#     enabled: true
-#   controller:
-#     ingressClassResource:
-#       default: true
-
-docker-registry:
-  enabled: false
-  # storage: s3
-  # secrets:
-  #   s3:
-  #     accessKey: imjoy
-  #     secretKey: Nbj2cbcUDGGy7QNS8RjCwMrNRXrp2Ms7UXeF
-  # s3:
-  #   region: EU
-  #   regionEndpoint: http://minio-s3:9000
-  #   bucket: docker-registry
-  #   secure: false
-  # service:
-  #   port: 5000
-  #   nodePort: 31822 # only valid when using NodePort
-
+redis:
+  fullnameOverride: "redis"
+  enabled: true
+  global:
+    redis:
+      password: ${REDIS_PASSWORD}
 minio:
-  # nameOverride: "minio"
   fullnameOverride: "minio"
   enabled: true
-  rootUser: ${S3_ACCESS_KEY}
-  rootPassword: ${S3_SECRET_KEY}
-  # accessKey: ""
-  # secretKey: ""
-  replicas: 4
-  ingress:
+  auth:
+    rootUser: "${S3_ACCESS_KEY}"
+    rootPassword: "${S3_SECRET_KEY}"
+  apiIngress:
     enabled: true
     annotations:
-      # kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.k8s.io/acme-challenge-type: http01
       cert-manager.io/cluster-issuer: letsencrypt
       certmanager.k8s.io/acme-http01-edit-in-place: "true"
-    # annotations:
-    #   nginx.ingress.kubernetes.io/rewrite-target: /$2
-    path: /
-    hosts:
-    # - imjoy.duckdns.org
-    - s3.${HOSTNAME}
-    tls:
-    - secretName: s3-minio
-      hosts:
+    hostname: s3c.${HOSTNAME}
+    tls: true
+    extraTls:
+    - hosts:
+      - s3c.${HOSTNAME}
+      secretName: minio-s3c
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+      cert-manager.k8s.io/acme-challenge-type: http01
+      cert-manager.io/cluster-issuer: letsencrypt
+      certmanager.k8s.io/acme-http01-edit-in-place: "true"
+    hostname: s3.${HOSTNAME}
+    tls: true
+    extraTls:
+    - hosts:
       - s3.${HOSTNAME}
-  # resources:
-  #   requests:
-  #     memory: 2Gi
+      secretName: minio-s3
   persistence:
     size: 64Gi
-  consoleIngress:
-    annotations:
-      # kubernetes.io/ingress.class: nginx
-      kubernetes.io/tls-acme: "true"
-      # cert-manager.k8s.io/acme-challenge-type: http01
-      cert-manager.io/cluster-issuer: letsencrypt
-      # certmanager.k8s.io/acme-http01-edit-in-place: "true"
-    enabled: true
-    hosts:
-    - s3c.${HOSTNAME}
 
-    tls:
-    - secretName: s3c-minio
-      hosts:
-      - s3c.${HOSTNAME}
-
-tritoninferenceserver-hypha:
+tritoninferenceserver:
   enabled: true
   fullnameOverride: "tritoninferenceserver"
-  replicaCount: 1
-  image:
-    imageName: nvcr.io/nvidia/tritonserver:23.04-py3
-    pullPolicy: IfNotPresent
-    # modelRepositoryPath: s3://imjoy-s3.pasteur.fr:80/model-repository
-    # modelRepository: s3://http://minio:9000/model-repository
-    # modelRepository: s3://https://uk1s3.embassy.ebi.ac.uk:443/model-repository
-    # modelRepositoryPath: /model-repository
-    modelSnapshotsPath: /model-snapshots
-    modelRepository: s3://http://minio:9000/model-repository
-    numGpus: 1
-    # s3Endpoint: https://uk1s3.embassy.ebi.ac.uk
-    # s3Bucket: s3://model-repository/
+  replicaCount: 2
+  startupProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 60
+    failureThreshold: 60
+  initContainers:
+  - name: bmz
+    image: minio/mc
+    command: ["/bin/sh"]
+    args:
+    - "-c"
+    - |
+      mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk
+      mc alias set minio http://minio:9000 $(ROOTUSER) $(ROOTPASSWORD)
+      mc mb minio/model-repository || true
+      mc mirror --overwrite ebi-s3-endpoint/model-repository minio/model-repository
+      mc mirror --overwrite minio/model-repository/ /model-repository
+    volumeMounts:
+    - mountPath: /model-repository
+      name: triton-cache
+      subPath: model-repository
     env:
-    - name: AWS_ACCESS_KEY_ID
-      value: ${S3_ACCESS_KEY}
-    - name: AWS_SECRET_ACCESS_KEY
-      value: ${S3_SECRET_KEY}
-    - name: AWS_REGION
-      value: us-east-1
-    - name: S3_ENDPOINT
-      value: ${S3_ENDPOINT_URL}
-    - name: S3_USE_HTTPS
-      value: "0"
-  ingress:
-    enabled: false
-    path: /triton(/|$)(.*)
-    # Used to create an Ingress record.
-    hosts:
-    - hypha.${HOSTNAME}
-    annotations:
-      # kubernetes.io/ingress.class: nginx
-      kubernetes.io/tls-acme: "true"
-      # cert-manager.k8s.io/acme-challenge-type: http01
-      cert-manager.io/cluster-issuer: letsencrypt
-      # certmanager.k8s.io/acme-http01-edit-in-place: "true"
-    labels: {}
-    tls:
-    - secretName: tls-secret
-      hosts:
-      - hypha.${HOSTNAME}
-  cache:
-    ephemeral:
+    - name: MC_CONFIG_DIR # Specify a custom config directory for mc
+      value: "/tmp/.mc"
+    - name: ROOTPASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio
+          key: root-password
+    - name: ROOTUSER
+      valueFrom:
+        secretKeyRef:
+          name: minio
+          key: root-user
+  volumes:
+  - emptyDir:
+      medium: Memory
+    name: dshm
+  - ephemeral:
       volumeClaimTemplate:
-        metadata:
-          creationTimestamp: null
         spec:
           accessModes:
           - ReadWriteOnce
           resources:
             requests:
-              storage: 128Gi
+              storage: 64Gi
+          storageClassName: standard
           volumeMode: Filesystem
+    name: triton-cache
+  image:
+    imageName: nvcr.io/nvidia/tritonserver:22.04-py3
+    modelRepository: /model-repository
+    modelStore: /model-repository
+    modelSnapshotsPath: /model-snapshots
+    env:
+    - name: TRITON_MODEL_DIRECTORY
+      value: "/model-repository"
+    - name: TF_FORCE_GPU_ALLOW_GROWTH
+      value: "true"
+    - name: AWS_ACCESS_KEY_ID
+      value: "${S3_ACCESS_KEY}"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "${S3_SECRET_KEY}"
+    - name: AWS_REGION
+      value: "us-east-1"
+    - name: S3_ENDPOINT
+      value: "${S3_ENDPOINT_URL}"
+    - name: S3_USE_HTTPS
+      value: "0"
   resources:
-    limits:
-      cpu: "8"
-      memory: 48Gi
-      nvidia.com/gpu: "1"
     requests:
+      memory: "32Gi"
       cpu: "8"
-      memory: 48Gi
-      nvidia.com/gpu: "1"
-  service:
-    type: ClusterIP
-
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 100
-    gpuUtilization: 50
-    gpuMemoryUtilization: 50
-
-  nodeSelector:
-    cloud.google.com/gke-accelerator: "nvidia-tesla-t4"
-    cloud.google.com/gke-accelerator-count: "1"
-    cloud.google.com/gke-spot: "true"
+    limits:
+      memory: "32Gi"
+      cpu: "16"

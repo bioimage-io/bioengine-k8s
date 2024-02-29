@@ -65,5 +65,5 @@ jobs:
       run: helm version
     - name: test helmsman 
       run: helmsman  -v
-    - name: "make staging.dry"
-      run: helmsman --debug --group staging -f helmsman.yaml --subst-env-values --dry-run
+    - name: "make dev.dry"
+      run: helmsman --debug --group dev -f helmsman.yaml --subst-env-values --dry-run
