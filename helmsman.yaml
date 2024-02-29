@@ -160,7 +160,7 @@ apps:
 
   kuberay-operator:
     name: "kuberay-operator"
-    namespace: "hypha"
+    namespace: "bioengine"
     chart: "kuberay/kuberay-operator"
     enabled: false
     version: "0.5.0"
@@ -168,7 +168,7 @@ apps:
 
   kuberay-apiserver:
     name: "kuberay-apiserver"
-    namespace: "hypha"
+    namespace: "bioengine"
     chart: "kuberay/kuberay-apiserver"
     enabled: false
     version: "0.5.0"
