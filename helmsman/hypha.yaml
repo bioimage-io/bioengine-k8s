@@ -96,6 +96,10 @@ tritoninferenceserver:
   enabled: true
   fullnameOverride: "tritoninferenceserver"
   replicaCount: 2
+  startupProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 60
+    failureThreshold: 60
   initContainers:
   - name: bmz
     image: minio/mc
@@ -103,11 +107,15 @@ tritoninferenceserver:
     args:
     - "-c"
     - |
-      mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk &&
+      mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk
       mc alias set minio http://minio:9000 $(ROOTUSER) $(ROOTPASSWORD)
-      echo "Downloading" &&
-      mc mb minio/model-repository || true &&
-      mc mirror --overwrite ebi-s3-endpoint/model-repository/ minio/model-repository
+      mc mb minio/model-repository || true
+      mc mirror --overwrite ebi-s3-endpoint/model-repository minio/model-repository
+      mc mirror --overwrite minio/model-repository/ /model-repository
+    volumeMounts:
+    - mountPath: /model-repository
+      name: triton-cache
+      subPath: model-repository
     env:
     - name: MC_CONFIG_DIR # Specify a custom config directory for mc
       value: "/tmp/.mc"
@@ -121,10 +129,6 @@ tritoninferenceserver:
         secretKeyRef:
           name: minio
           key: root-user
-  startupProbe:
-    initialDelaySeconds: 10
-    periodSeconds: 60
-    failureThreshold: 60
   volumes:
   - emptyDir:
       medium: Memory
@@ -136,16 +140,18 @@ tritoninferenceserver:
           - ReadWriteOnce
           resources:
             requests:
-              storage: 128Gi
-          storageClassName: standard-rwo
+              storage: 64Gi
+          storageClassName: standard
           volumeMode: Filesystem
     name: triton-cache
   image:
     imageName: nvcr.io/nvidia/tritonserver:22.04-py3
-    modelRepository: s3://minio:9000/model-repository
+    modelRepository: /model-repository
     modelStore: /model-repository
     modelSnapshotsPath: /model-snapshots
     env:
+    - name: TRITON_MODEL_DIRECTORY
+      value: "/model-repository"
     - name: TF_FORCE_GPU_ALLOW_GROWTH
       value: "true"
     - name: AWS_ACCESS_KEY_ID
@@ -161,7 +167,7 @@ tritoninferenceserver:
   resources:
     requests:
       memory: "32Gi"
-      cpu: "16"
+      cpu: "8"
     limits:
       memory: "32Gi"
-      cpu: "32"
+      cpu: "16"
