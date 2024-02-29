@@ -19,6 +19,7 @@ namespaces:
   ingress-nginx:
 
 helmRepos:
+  kuberay: "https://ray-project.github.io/kuberay-helm/"
   dask: "https://helm.dask.org/"
   jupyterhub: "https://jupyterhub.github.io/helm-chart/"
   jetstack: "https://charts.jetstack.io"
@@ -156,3 +157,19 @@ apps:
   #   set:
   #     rbac.create: true
   #     serviceAccount.create: true
+
+  kuberay-operator:
+    name: "kuberay-operator"
+    namespace: "hypha"
+    chart: "kuberay/kuberay-operator"
+    enabled: false
+    version: "0.5.0"
+    group: "prod"
+
+  kuberay-apiserver:
+    name: "kuberay-apiserver"
+    namespace: "hypha"
+    chart: "kuberay/kuberay-apiserver"
+    enabled: false
+    version: "0.5.0"
+    group: "prod"
