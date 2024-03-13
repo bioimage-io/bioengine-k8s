@@ -70,6 +70,15 @@ apps:
     - helmsman/hypha.yaml
     - helmsman/dev.hypha.yaml
 
+  hypha-local:
+    !!merge <<: *hypha
+    name: "hypha-local"
+    enabled: true
+    group: "local"
+    namespace: "bioengine"
+    valuesFiles:
+    - helmsman/local.hypha.yaml
+
   daskhub:
     chart: "dask/daskhub"
     version: "2024.1.0"
