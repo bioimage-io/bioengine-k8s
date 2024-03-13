@@ -25,6 +25,10 @@ dev:
 	helmsman --debug --group dev -f helmsman.yaml --subst-env-values --apply --always-upgrade
 dev.dry:
 	helmsman --debug --group dev -f helmsman.yaml --subst-env-values --dry-run --always-upgrade
+
+local:
+	 helmsman --debug --group local -f helmsman.yaml  --subst-env-values -e .env --apply --always-upgrade
+
 set.dot.env:
 	set -o allexport; source ./secrets.env; set +o allexport
 
