@@ -34,4 +34,14 @@ set.dot.env:
 
 local.test:
 	act --secret-file secrets.yaml
-In this setup:
+
+download.bmz:
+	mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk "" ""
+	mc mirror --overwrite ebi-s3-endpoint/model-repository model-repository
+
+download.cellpose:
+	mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk "" ""
+	mc mirror --overwrite ebi-s3-endpoint/model-repository/cellpose-python model-repository/cellpose-python
+	mc mirror --overwrite ebi-s3-endpoint/model-repository/cellpose-predict model-repository/cellpose-predict
+
+# In this setup:
