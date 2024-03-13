@@ -44,7 +44,7 @@ minio:
 tritoninferenceserver:
   enabled: true
   fullnameOverride: "tritoninferenceserver"
-  replicaCount: 2
+  replicaCount: 1
   startupProbe:
     initialDelaySeconds: 10
     periodSeconds: 60
