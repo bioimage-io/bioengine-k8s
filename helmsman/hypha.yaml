@@ -28,7 +28,7 @@ jwt_secret: "${JWT_SECRET}"
 image:
   repository: ghcr.io/amun-ai/hypha
   pullPolicy: IfNotPresent
-  tag: "0.15.36"
+  tag: "0.15.50"
 
 service:
   type: ClusterIP

@@ -84,7 +84,7 @@ apps:
     version: "2024.1.0"
     group: "prod"
     namespace: "bioengine"
-    enabled: true
+    enabled: false
     wait: true
     priority: -10
     timeout: 600
