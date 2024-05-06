@@ -39,8 +39,7 @@ helmRepos:
 settings:
 
 appsTemplates:
-  hypha: &hypha
-    # name: "hypha"
+  hypha: &hypha # name: "hypha"
     chart: "hypha/hypha"
     # enabled: true
     version: "0.17.0"
@@ -58,7 +57,8 @@ apps:
     enabled: true
     namespace: "bioengine"
     valuesFiles:
-    - helmsman/hypha.yaml
+      - helmsman/hypha.yaml
+
 
   hypha-dev:
     !!merge <<: *hypha
@@ -67,8 +67,8 @@ apps:
     group: "dev"
     namespace: "bioengine-dev"
     valuesFiles:
-    - helmsman/hypha.yaml
-    - helmsman/dev.hypha.yaml
+      - helmsman/hypha.yaml
+      - helmsman/dev.hypha.yaml
 
   hypha-local:
     !!merge <<: *hypha
@@ -77,7 +77,7 @@ apps:
     group: "local"
     namespace: "bioengine"
     valuesFiles:
-    - helmsman/local.hypha.yaml
+      - helmsman/local.hypha.yaml
 
   daskhub:
     chart: "dask/daskhub"
@@ -91,8 +91,7 @@ apps:
     set:
       proxy.secretToken: "$JWT_SECRET"
     valuesFiles:
-    - "helmsman/jupyterhub.yaml"
-
+      - "helmsman/jupyterhub.yaml"
 
   cert-manager:
     name: "cert-manager"
@@ -153,7 +152,7 @@ apps:
     version: "4.9.1"
     timeout: 360
     valuesFiles:
-    - helmsman/ingress-nginx.yaml
+      - helmsman/ingress-nginx.yaml
 
   # descheduler:
   #   name: "descheduler"
@@ -170,14 +169,19 @@ apps:
     name: "kuberay-operator"
     namespace: "bioengine"
     chart: "kuberay/kuberay-operator"
-    enabled: false
-    version: "0.5.0"
+    enabled: true
+    version: "1.1.0"
     group: "prod"
 
   kuberay-apiserver:
     name: "kuberay-apiserver"
     namespace: "bioengine"
     chart: "kuberay/kuberay-apiserver"
-    enabled: false
-    version: "0.5.0"
+    enabled: true
+    version: "1.1.0"
     group: "prod"
+    valuesFiles: 
+      - "helmsman/ray.yaml"
+
+
+# oeway007@gmail.com
