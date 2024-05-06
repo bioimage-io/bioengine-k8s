@@ -2,6 +2,8 @@ imjoyHostName: https://dev.hypha.${HOSTNAME}
 s3ConsoleHostName: https://dev.hs3c.${HOSTNAME}
 s3_endpoint_url_public: https://dev.hs3.${HOSTNAME}
 
+hyphaHostName: https://dev.hypha.${HOSTNAME}
+
 cert-manager:
 fullnameOverride: hypha-dev
 
