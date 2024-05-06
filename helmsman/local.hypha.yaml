@@ -1,0 +1,86 @@
+# Default values for imjoy-app-engine.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+# acmeEmail: "${EMAIL}"
+jwt_secret: "${JWT_SECRET}"
+
+image:
+  repository: ghcr.io/amun-ai/hypha
+  pullPolicy: IfNotPresent
+  tag: "0.15.36"
+
+service:
+  type: ClusterIP
+  port: 80
+  annotations: {}
+
+ingress:
+  enabled: true
+  className: nginx
+  path: /
+  hosts:
+  - hypha.${HOSTNAME}
+
+redis:
+  fullnameOverride: "redis"
+  enabled: true
+  global:
+    redis:
+      password: ${REDIS_PASSWORD}
+minio:
+  fullnameOverride: "minio"
+  enabled: true
+  auth:
+    rootUser: "${S3_ACCESS_KEY}"
+    rootPassword: "${S3_SECRET_KEY}"
+  apiIngress:
+    enabled: true
+  ingress:
+    enabled: true
+  persistence:
+    size: 64Gi
+
+tritoninferenceserver:
+  enabled: true
+  fullnameOverride: "tritoninferenceserver"
+  replicaCount: 1
+  startupProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 60
+    failureThreshold: 60
+    volumeMounts:
+    - mountPath: /model-repository
+      name: triton-cache
+      subPath: model-repository
+  volumes:
+  - emptyDir:
+      medium: Memory
+    name: dshm
+  - ephemeral:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+          volumeMode: Filesystem
+    name: triton-cache
+  image:
+    imageName: nvcr.io/nvidia/tritonserver:22.04-py3
+    modelRepository: /model-repository
+    modelStore: /model-repository
+    modelSnapshotsPath: /model-snapshots
+    env:
+    - name: TRITON_MODEL_DIRECTORY
+      value: "/model-repository"
+    - name: TF_FORCE_GPU_ALLOW_GROWTH
+      value: "true"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
