@@ -41,8 +41,7 @@ settings:
 appsTemplates:
   hypha: &hypha
     # name: "hypha"
-    # chart: "hypha/hypha"
-    chart: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
+    chart: "hypha/hypha"
     # enabled: true
     version: "0.17.1"
     wait: false

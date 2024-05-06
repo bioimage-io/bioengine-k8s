@@ -1,6 +1,6 @@
 BASEDIR = $(shell pwd)
 
-VARIANTS := embassy denbi minikube gke
+VARIANTS := embassy denbi minikube gke egi
 ENVIRONMENTS := prod dev local
 
 .PHONY: all deploy htpassword set.dot.env local.test
@@ -8,9 +8,9 @@ ENVIRONMENTS := prod dev local
 all: $(VARIANTS)
 
 define DEPLOY_template =
-deploy-$(1)-$(2):
-	@echo "Deploying $(1) to $(2)..."
-	helmsman --apply --debug --group "$(2)" -f helmsman.yaml -e $(1).$(2).env --subst-env-values
+$(1).$(2):
+	@echo "Deploying $(2) to $(1)..."
+	helmsman --debug --group $(2) -f helmsman.yaml -f helmsman/$(1).yaml -e $(1).$(2).env --subst-env-values --apply
 endef
 
 $(foreach variant,$(VARIANTS),$(foreach env,$(ENVIRONMENTS),$(eval $(call DEPLOY_template,$(variant),$(env)))))
@@ -19,15 +19,9 @@ htpassword:
 	docker run --rm -ti xmartlabs/htpasswd ${CI_REGISTRY_USER} ${CI_REGISTRY_PASSWORD} > htpasswd_file
 	cat htpasswd_file
 
-prod:
-	helmsman --debug -f helmsman.yaml --subst-env-values --apply --always-upgrade
-dev:
-	helmsman --debug --group dev -f helmsman.yaml --subst-env-values --apply --always-upgrade
-dev.dry:
-	helmsman --debug --group dev -f helmsman.yaml --subst-env-values --dry-run --always-upgrade
 set.dot.env:
 	set -o allexport; source ./secrets.env; set +o allexport
 
 local.test:
 	act --secret-file secrets.yaml
-In this setup:
+# In this setup:
