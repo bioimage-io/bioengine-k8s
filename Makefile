@@ -31,7 +31,7 @@ set.dot.env:
 
 local.test:
 	act --secret-file secrets.yaml
-
+  
 download.bmz:
 	mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk "" ""
 	mc mirror --overwrite ebi-s3-endpoint/model-repository model-repository
