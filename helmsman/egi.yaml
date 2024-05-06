@@ -1,9 +1,17 @@
 apps:
   hypha-prod:
     valuesFiles:
-    - hypha.yaml
-    - egi.hypha.yaml
+      - hypha.yaml
+      - egi.hypha.yaml
   hypha-dev:
     valuesFiles:
-    - hypha.yaml
-    - dev.hypha.yaml
+      - hypha.yaml
+      - dev.hypha.yaml
+  cert-manager:
+    namespace: bioengine
+    enabled: false
+  ingress-nginx:
+    namespace: bioengine
+    enabled: false
+  daskhub:
+    enabled: false
