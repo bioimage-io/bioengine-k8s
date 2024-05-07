@@ -42,7 +42,7 @@ appsTemplates:
   hypha: &hypha # name: "hypha"
     chart: "hypha/hypha"
     # enabled: true
-    version: "0.17.0"
+    version: "0.17.2"
     wait: false
     timeout: 600
     hooks:
