@@ -8,3 +8,4 @@ apps:
     valuesFiles:
     - hypha.yaml
     - dev.hypha.yaml
+    - gke.hypha.yaml
