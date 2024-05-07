@@ -2,6 +2,8 @@ imjoyHostName: https://dev.hypha.${HOSTNAME}
 s3ConsoleHostName: https://dev.hs3c.${HOSTNAME}
 s3_endpoint_url_public: https://dev.hs3.${HOSTNAME}
 
+hyphaHostName: https://dev.hypha.${HOSTNAME}
+
 cert-manager:
 fullnameOverride: hypha-dev
 
@@ -13,7 +15,7 @@ ingress:
     hosts:
     - dev.hypha.${HOSTNAME}
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-dev
+    cert-manager.io/cluster-issuer: letsencrypt
 
 tritoninfereceserver-hypha:
   fullnameOverride: tritoninferenceserver-dev
@@ -30,7 +32,7 @@ minio:
     name: "minio-sa-dev"
   ingress:
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-dev
+      cert-manager.io/cluster-issuer: letsencrypt
     hostname: dev.s3c.${HOSTNAME}
     extraTls:
     - hosts:
@@ -39,7 +41,7 @@ minio:
 
   apiIngress:
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-dev
+      cert-manager.io/cluster-issuer: letsencrypt
     hostname: dev.s3.${HOSTNAME}
     extraTls:
     - hosts:

@@ -10,6 +10,7 @@ s3_endpoint_url_public: https://hs3.${HOSTNAME}
 auth0_audience: https://imjoy.eu.auth0.com/api/v2/
 auth0_domain: imjoy.eu.auth0.com
 jwt_secret: "${JWT_SECRET}"
+startup_functions_URI: "bioimageio.engine:launch_all_bioengine_apps"
 
 # securityContext:
 #   runAsNonRoot: true
@@ -26,9 +27,9 @@ jwt_secret: "${JWT_SECRET}"
 #     type: RuntimeDefault
 
 image:
-  repository: ghcr.io/amun-ai/hypha
+  repository: ghcr.io/bioimage-io/bioengine
   pullPolicy: IfNotPresent
-  tag: "0.15.50"
+  tag: "8728d46"
 
 service:
   type: ClusterIP
@@ -40,16 +41,16 @@ ingress:
   className: nginx
   path: /
   hosts:
-  - hypha.${HOSTNAME}
+    - hypha.${HOSTNAME}
   annotations:
     kubernetes.io/tls-acme: "true"
     cert-manager.k8s.io/acme-challenge-type: http01
     cert-manager.io/cluster-issuer: letsencrypt
     certmanager.k8s.io/acme-http01-edit-in-place: "true"
   tls:
-  - secretName: tls-secret
-    hosts:
-    - hypha.${HOSTNAME}
+    - secretName: tls-secret
+      hosts:
+        - hypha.${HOSTNAME}
 
 redis:
   fullnameOverride: "redis"
@@ -73,9 +74,9 @@ minio:
     hostname: s3c.${HOSTNAME}
     tls: true
     extraTls:
-    - hosts:
-      - s3c.${HOSTNAME}
-      secretName: minio-s3c
+      - hosts:
+          - s3c.${HOSTNAME}
+        secretName: minio-s3c
   ingress:
     enabled: true
     annotations:
@@ -86,9 +87,9 @@ minio:
     hostname: s3.${HOSTNAME}
     tls: true
     extraTls:
-    - hosts:
-      - s3.${HOSTNAME}
-      secretName: minio-s3
+      - hosts:
+          - s3.${HOSTNAME}
+        secretName: minio-s3
   persistence:
     size: 64Gi
 
@@ -101,69 +102,69 @@ tritoninferenceserver:
     periodSeconds: 60
     failureThreshold: 60
   initContainers:
-  - name: bmz
-    image: minio/mc
-    command: ["/bin/sh"]
-    args:
-    - "-c"
-    - |
-      mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk
-      mc alias set minio http://minio:9000 $(ROOTUSER) $(ROOTPASSWORD)
-      mc mb minio/model-repository || true
-      mc mirror --overwrite ebi-s3-endpoint/model-repository minio/model-repository
-      mc mirror --overwrite minio/model-repository/ /model-repository
-    volumeMounts:
-    - mountPath: /model-repository
-      name: triton-cache
-      subPath: model-repository
-    env:
-    - name: MC_CONFIG_DIR # Specify a custom config directory for mc
-      value: "/tmp/.mc"
-    - name: ROOTPASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: minio
-          key: root-password
-    - name: ROOTUSER
-      valueFrom:
-        secretKeyRef:
-          name: minio
-          key: root-user
+    - name: bmz
+      image: minio/mc
+      command: ["/bin/sh"]
+      args:
+        - "-c"
+        - |
+          mc alias set ebi-s3-endpoint https://uk1s3.embassy.ebi.ac.uk
+          mc alias set minio http://minio:9000 $(ROOTUSER) $(ROOTPASSWORD)
+          mc mb minio/model-repository || true
+          mc mirror --overwrite ebi-s3-endpoint/model-repository minio/model-repository
+          mc mirror --overwrite minio/model-repository/ /model-repository
+      volumeMounts:
+        - mountPath: /model-repository
+          name: triton-cache
+          subPath: model-repository
+      env:
+        - name: MC_CONFIG_DIR # Specify a custom config directory for mc
+          value: "/tmp/.mc"
+        - name: ROOTPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: minio
+              key: root-password
+        - name: ROOTUSER
+          valueFrom:
+            secretKeyRef:
+              name: minio
+              key: root-user
   volumes:
-  - emptyDir:
-      medium: Memory
-    name: dshm
-  - ephemeral:
-      volumeClaimTemplate:
-        spec:
-          accessModes:
-          - ReadWriteOnce
-          resources:
-            requests:
-              storage: 64Gi
-          storageClassName: standard
-          volumeMode: Filesystem
-    name: triton-cache
+    - emptyDir:
+        medium: Memory
+      name: dshm
+    - ephemeral:
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 64Gi
+            storageClassName: standard
+            volumeMode: Filesystem
+      name: triton-cache
   image:
-    imageName: nvcr.io/nvidia/tritonserver:22.04-py3
+    tag: 22.04-py3
     modelRepository: /model-repository
     modelStore: /model-repository
     modelSnapshotsPath: /model-snapshots
     env:
-    - name: TRITON_MODEL_DIRECTORY
-      value: "/model-repository"
-    - name: TF_FORCE_GPU_ALLOW_GROWTH
-      value: "true"
-    - name: AWS_ACCESS_KEY_ID
-      value: "${S3_ACCESS_KEY}"
-    - name: AWS_SECRET_ACCESS_KEY
-      value: "${S3_SECRET_KEY}"
-    - name: AWS_REGION
-      value: "us-east-1"
-    - name: S3_ENDPOINT
-      value: "${S3_ENDPOINT_URL}"
-    - name: S3_USE_HTTPS
-      value: "0"
+      - name: TRITON_MODEL_DIRECTORY
+        value: "/model-repository"
+      - name: TF_FORCE_GPU_ALLOW_GROWTH
+        value: "true"
+      - name: AWS_ACCESS_KEY_ID
+        value: "${S3_ACCESS_KEY}"
+      - name: AWS_SECRET_ACCESS_KEY
+        value: "${S3_SECRET_KEY}"
+      - name: AWS_REGION
+        value: "us-east-1"
+      - name: S3_ENDPOINT
+        value: "${S3_ENDPOINT_URL}"
+      - name: S3_USE_HTTPS
+        value: "0"
   resources:
     requests:
       memory: "32Gi"

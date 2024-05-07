@@ -133,6 +133,15 @@ jupyterhub:
         node_selector: {"cloud.google.com/gke-accelerator": "nvidia-tesla-t4", "cloud.google.com/gke-accelerator-count": "1", "cloud.google.com/gke-spot": "true"}
         extra_resource_limits:
           nvidia.com/gpu: "1"
+    - display_name: "1 GPU High Memory"
+      description: "ZeroCostDemo"
+      kubespawner_override:
+        image: jupyter/base-notebook
+        cpu_limit: 4
+        mem_limit: "16G"
+        node_selector: {"cloud.google.com/gke-accelerator": "nvidia-tesla-t4", "cloud.google.com/gke-accelerator-count": "1", "cloud.google.com/gke-spot": "true"}
+        extra_resource_limits:
+          nvidia.com/gpu: "1"
 dask-gateway:
   enabled: true # Enabling dask-gateway will install Dask Gateway as a dependency.
   # Futher Dask Gateway configuration goes here

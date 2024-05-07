@@ -2,3 +2,5 @@ secrets.yaml
 .history
 .helmsman-tmp
 *.env
+junk
+creds
