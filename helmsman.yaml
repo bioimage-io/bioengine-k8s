@@ -28,7 +28,7 @@ helmRepos:
   # trow: "https://trow.io"
   # triton-hypha: "file://./triton"
   # hypha: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
-  hypha: "https://amun-ai.github.io/hypha-helm-charts/"
+  hypha: "https://bioimage-io.github.io/hypha-helm-charts/"
   nvdp: "https://nvidia.github.io/k8s-device-plugin"
   nvidia: "https://nvidia.github.io/gpu-operator"
   minio: "https://charts.min.io/"
@@ -41,6 +41,7 @@ settings:
 appsTemplates:
   hypha: &hypha # name: "hypha"
     chart: "hypha/hypha"
+    # chart: "/home/ctr26/gdrive/+projects/2021_hypha/hypha-helm-charts/charts/hypha"
     # enabled: true
     version: "0.17.3"
     wait: false
@@ -58,6 +59,11 @@ apps:
     namespace: "bioengine"
     valuesFiles:
       - helmsman/hypha.yaml
+    # hooks:
+    #   successCondition: "Complete"
+    #   successTimeout: "90s"
+    #   deleteOnSuccess: true
+    #   preInstall: "job.yaml" 
 
 
   hypha-dev:
